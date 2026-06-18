@@ -74,14 +74,22 @@ export default function ExamSimulatorPage() {
         body: JSON.stringify({ subject, grade, topic: '', count: 20 }),
       })
       const data = await res.json()
+
+      if (!data.questions || data.questions.length === 0) {
+        alert('Failed to generate exam questions. This can happen if our AI provider is busy. Please wait a moment and try again.')
+        setLoading(false)
+        return
+      }
+
       setQuestions(data.questions)
       setAnswers({})
       setCurrent(0)
       setSelected(null)
       setStage('paper1')
       startTimer(P1_TIME)
-    } catch {
-      alert('Failed to generate exam. Please try again.')
+    } catch (err) {
+      console.error('Exam generation error:', err)
+      alert('Failed to generate exam. Please check your connection and try again.')
     } finally {
       setLoading(false)
     }

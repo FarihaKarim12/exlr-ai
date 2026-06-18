@@ -45,14 +45,22 @@ export default function QuizPage() {
         body: JSON.stringify({ subject, grade, topic }),
       })
       const data = await res.json()
+
+      if (!data.questions || data.questions.length === 0) {
+        alert('Failed to generate quiz questions. This can happen if our AI provider is busy. Please wait a moment and try again.')
+        setLoading(false)
+        return
+      }
+
       setQuestions(data.questions)
       setQuizStarted(true)
       setCurrent(0)
       setAnswers([])
       setSelected(null)
       setShowResult(false)
-    } catch {
-      alert('Failed to generate quiz. Please try again.')
+    } catch (err) {
+      console.error('Quiz generation error:', err)
+      alert('Failed to generate quiz. Please check your connection and try again.')
     } finally {
       setLoading(false)
     }

@@ -43,13 +43,19 @@ Rules:
       temperature: 0.7,
     })
 
-    const content = response.choices[0]?.message?.content || '[]'
+  const content = response.choices[0]?.message?.content || '[]'
 
-    // Clean and parse JSON
+  let questions = []
+  try {
     const cleaned = content.replace(/```json|```/g, '').trim()
-    const questions = JSON.parse(cleaned)
+    questions = JSON.parse(cleaned)
+    if (!Array.isArray(questions)) questions = []
+  } catch (parseErr) {
+    console.error('Failed to parse quiz JSON:', parseErr, 'Raw content:', content)
+    questions = []
+  }
 
-    return NextResponse.json({ questions })
+  return NextResponse.json({ questions }) 
   } catch (err) {
     console.error('Quiz generation error:', err)
     return NextResponse.json({ questions: [] }, { status: 500 })
