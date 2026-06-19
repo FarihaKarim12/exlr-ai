@@ -167,7 +167,7 @@ export default function StudyPlanPage() {
             opacity: loading || !grade || selectedSubjects.length === 0 ? 0.6 : 1,
             fontFamily: 'inherit',
           }}>
-            {loading ? 'Generating your plan...' : '🗺 Generate Study Plan'}
+            {loading ? 'Generating your plan...' : 'Generate Study Plan'}
           </button>
         </div>
 
