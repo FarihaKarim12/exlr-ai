@@ -74,7 +74,6 @@ export default function Contact() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
               { icon: '📧', label: 'Email', value: 'exlrai.official@gmail.com' },
-              { icon: '📍', label: 'Location', value: 'Karachi, Pakistan' },
               { icon: '⏱', label: 'Response time', value: 'Within 24 hours' },
             ].map(item => (
               <div key={item.label} style={{
@@ -100,8 +99,8 @@ export default function Contact() {
         }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Your name</label>
-              <input style={inputStyle} placeholder="Ahmed Ali"
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Name</label>
+              <input style={inputStyle} placeholder="Enter your name"
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 onFocus={e => (e.target.style.borderColor = '#6366f1')}
@@ -110,7 +109,7 @@ export default function Contact() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Email address</label>
-              <input style={inputStyle} type="email" placeholder="ahmed@email.com"
+              <input style={inputStyle} type="email" placeholder="Enter your email address"
                 value={form.email}
                 onChange={e => setForm({ ...form, email: e.target.value })}
                 onFocus={e => (e.target.style.borderColor = '#6366f1')}
