@@ -106,7 +106,6 @@ export default function LearningPathPage() {
             textAlign: 'center', padding: 60,
             background: '#0f1422', border: '0.5px solid #252d45', borderRadius: 12,
           }}>
-            <div style={{ fontSize: 40, marginBottom: 14 }}>🗺</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc', marginBottom: 8 }}>
               No quiz data yet
             </div>
@@ -193,7 +192,7 @@ export default function LearningPathPage() {
               opacity: loading ? 0.7 : 1,
               fontFamily: 'inherit', marginBottom: 20,
             }}>
-              {loading ? 'Generating your personalised path...' : '🗺 Generate My Learning Path'}
+              {loading ? 'Generating your personalised path...' : 'Generate My Learning Path'}
             </button>
 
             {(path || loading) && (
