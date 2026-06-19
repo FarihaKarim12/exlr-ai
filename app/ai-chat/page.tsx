@@ -157,11 +157,7 @@ export default function AIChatPage() {
         }}>
           {messages.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 12 }}>
-              <div style={{ fontSize: 40 }}>🧠</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc' }}>Ask me anything</div>
-              <div style={{ fontSize: 13, color: '#64748b', textAlign: 'center', maxWidth: 360 }}>
-                Ask any question from your AKUEB syllabus in Urdu or English.
-              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginTop: 8 }}>
                 {[
                   "What is Newton's second law?",
