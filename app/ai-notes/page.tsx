@@ -151,7 +151,7 @@ export default function AINotesPage() {
             opacity: loading || !topic.trim() ? 0.6 : 1,
             fontFamily: 'inherit',
           }}>
-            {loading ? 'Generating notes...' : '✦ Generate AI Notes'}
+            {loading ? 'Generating notes...' : 'Generate AI Notes'}
           </button>
 
           {/* Quick topic suggestions */}
