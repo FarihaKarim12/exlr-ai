@@ -50,11 +50,17 @@ export default function LoginPage() {
           fontSize: 20, fontWeight: 700, marginBottom: 40,
           justifyContent: 'center',
         }}>
-          <span style={{
-            width: 8, height: 8, borderRadius: '50%',
-            background: '#6366f1', boxShadow: '0 0 10px #6366f1',
-            display: 'inline-block',
-          }} />
+          <div style={{
+            width: 30, height: 30, borderRadius: 8,
+            background: '#6366f1',
+            boxShadow: '0 0 12px #6366f180',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <polygon points="7,2 7,8 10,8 5,14 5,8 8,8" fill="white"/>
+            </svg>
+          </div>
           <span style={{ color: '#f8fafc' }}>Exlr</span>
           <span style={{ color: '#818cf8' }}>AI</span>
         </a>
@@ -76,7 +82,7 @@ export default function LoginPage() {
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>
                 Email address
               </label>
-              <input style={inputStyle} type="email" placeholder="ahmed@email.com"
+              <input style={inputStyle} type="email" placeholder="Enter your email address"
                 value={form.email}
                 onChange={e => setForm({ ...form, email: e.target.value })}
                 onFocus={e => (e.target.style.borderColor = '#6366f1')}
@@ -94,7 +100,7 @@ export default function LoginPage() {
                   Forgot password?
                 </a>
               </div>
-              <input style={inputStyle} type="password" placeholder="Your password"
+              <input style={inputStyle} type="password" placeholder="Enter your password"
                 value={form.password}
                 onChange={e => setForm({ ...form, password: e.target.value })}
                 onFocus={e => (e.target.style.borderColor = '#6366f1')}
