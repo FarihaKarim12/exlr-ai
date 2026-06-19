@@ -99,7 +99,7 @@ export default function AINotesPage() {
             AI powered
           </div>
           <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 6 }}>
-            AI Note Generator
+            Notes Generator
           </h1>
           <p style={{ fontSize: 13, color: '#64748b' }}>
             Enter any AKUEB topic and get instant, structured study notes.
