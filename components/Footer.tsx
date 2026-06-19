@@ -33,14 +33,19 @@ export default function Footer() {
               fontSize: 22, fontWeight: 700, letterSpacing: '-0.5px',
               display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14,
             }}>
-              <span style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: '#6366f1',
-                boxShadow: '0 0 10px #6366f1',
-                display: 'inline-block',
-              }} />
-              <span style={{ color: '#f8fafc' }}>Exlr</span>
-              <span style={{ color: '#818cf8' }}>AI</span>
+              <div style={{
+            width: 30, height: 30, borderRadius: 8,
+            background: '#6366f1',
+            boxShadow: '0 0 12px #6366f180',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <polygon points="7,2 7,8 10,8 5,14 5,8 8,8" fill="white"/>
+            </svg>
+          </div>
+          <span style={{ color: '#f8fafc' }}>Exlr</span>
+          <span style={{ color: '#818cf8' }}>AI</span>
             </a>
             <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.7, maxWidth: 260 }}>
               Pakistan's smartest AKUEB prep platform. Free for every SSC and HSSC student.
