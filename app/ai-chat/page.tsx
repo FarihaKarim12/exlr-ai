@@ -114,10 +114,10 @@ export default function AIChatPage() {
             AI powered
           </div>
           <h1 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 4 }}>
-            AI Doubt Solver
+            Doubt Solver
           </h1>
           <p style={{ fontSize: 13, color: '#64748b' }}>
-            Ask any AKUEB question in Urdu or English. Get instant, syllabus-accurate answers.
+            Ask any question. Get instant, syllabus-accurate answers.
           </p>
         </div>
 
