@@ -140,16 +140,6 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-
-            <a href="/auth/signup" style={{
-              display: 'block', textAlign: 'center', marginTop: 18,
-              padding: '11px', borderRadius: 10,
-              background: '#6366f1', color: '#fff',
-              fontSize: 13, fontWeight: 600,
-              boxShadow: '0 0 20px #6366f140',
-            }}>
-              Start for free — takes 1 minute
-            </a>
           </div>
         </div>
       </div>
