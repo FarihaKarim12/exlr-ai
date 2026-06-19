@@ -243,7 +243,7 @@ export default function QuizPage() {
                 opacity: loading || !subject || !grade ? 0.6 : 1,
                 fontFamily: 'inherit',
               }}>
-                {loading ? 'Generating quiz...' : '⚡ Generate 10 MCQs'}
+                {loading ? 'Generating quiz...' : 'Generate 10 MCQs'}
               </button>
             </div>
           </>
