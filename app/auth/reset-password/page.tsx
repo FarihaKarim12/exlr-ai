@@ -43,8 +43,11 @@ export default function ResetPasswordPage() {
           fontSize: 20, fontWeight: 700, marginBottom: 40, justifyContent: 'center',
         }}>
           <div style={{
-            width: 30, height: 30, borderRadius: 8, background: '#6366f1',
-            boxShadow: '0 0 12px #6366f180', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 30, height: 30, borderRadius: 8,
+            background: '#6366f1',
+            boxShadow: '0 0 12px #6366f180',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
           }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <polygon points="7,2 7,8 10,8 5,14 5,8 8,8" fill="white"/>
