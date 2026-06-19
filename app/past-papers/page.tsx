@@ -201,7 +201,6 @@ export default function PastPapersPage() {
             background: '#0f1422', border: '0.5px solid #252d45',
             borderRadius: 12,
           }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>📄</div>
             <div style={{ fontSize: 14, color: '#64748b' }}>
               No papers found. Try adjusting your filters.
             </div>
@@ -231,7 +230,7 @@ export default function PastPapersPage() {
                         background: '#6366f115', border: '0.5px solid #6366f130',
                         color: '#818cf8', cursor: 'pointer',
                       }}>
-                      👁 View paper
+                       View paper
                     </button>
                   )}
                   {p.answer_key_url && (
@@ -241,7 +240,7 @@ export default function PastPapersPage() {
                         background: '#22d3ee10', border: '0.5px solid #22d3ee30',
                         color: '#22d3ee', cursor: 'pointer',
                       }}>
-                      🔑 Answer key
+                       Answer key
                     </button>
                   )}
                   {p.emarking_url && (
@@ -251,7 +250,7 @@ export default function PastPapersPage() {
                         background: '#4ade8010', border: '0.5px solid #4ade8030',
                         color: '#4ade80', cursor: 'pointer',
                       }}>
-                      📝 E-marking
+                       E-marking
                     </button>
                   )}
                   {p.pdf_url && (
