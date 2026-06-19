@@ -224,11 +224,11 @@ export default function ExamSimulatorPage() {
           {/* Exam info */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             <div style={{ background: '#141928', border: '0.5px solid #252d45', borderRadius: 10, padding: '14px 16px' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc', marginBottom: 4 }}>📝 Paper 1</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc', marginBottom: 4 }}>Paper 1</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>20 MCQs · 30 minutes · Auto-marked</div>
             </div>
             <div style={{ background: '#141928', border: '0.5px solid #252d45', borderRadius: 10, padding: '14px 16px' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc', marginBottom: 4 }}>✍ Paper 2</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc', marginBottom: 4 }}>Paper 2</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>CRQ + ERQ · 60 minutes · Self-assessed</div>
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function ExamSimulatorPage() {
             opacity: loading || !subject || !grade ? 0.6 : 1,
             fontFamily: 'inherit',
           }}>
-            {loading ? 'Preparing your exam...' : '⚡ Start Full Mock Exam'}
+            {loading ? 'Preparing your exam...' : 'Start Full Mock Exam'}
           </button>
         </div>
 
