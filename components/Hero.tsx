@@ -84,7 +84,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right — code block */}
+        {/* Right — feature highlights card */}
         <div style={{ position: 'relative' }} className="hero-visual">
 
           {/* Glow behind */}
@@ -97,126 +97,59 @@ export default function Hero() {
             pointerEvents: 'none',
           }} />
 
-          {/* Code block */}
           <div style={{
             background: '#0f1422',
             border: '0.5px solid #252d45',
-            borderRadius: 14, overflow: 'hidden',
-            fontFamily: 'monospace',
+            borderRadius: 16, padding: 28,
             position: 'relative', zIndex: 1,
           }}>
-            {/* Window bar */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '10px 16px',
-              borderBottom: '0.5px solid #252d45',
-              background: '#141928',
-            }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#f87171', display: 'inline-block' }} />
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24', display: 'inline-block' }} />
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-              <span style={{ fontSize: 11, color: '#64748b', marginLeft: 8 }}>exlr.ai — student.ts</span>
-            </div>
-
-            {/* Code content */}
-            <div style={{ padding: '20px 24px', fontSize: 13, lineHeight: 1.8 }}>
-              <div>
-                <span style={{ color: '#818cf8' }}>const</span>
-                <span style={{ color: '#f8fafc' }}> student </span>
-                <span style={{ color: '#64748b' }}>= </span>
-                <span style={{ color: '#22d3ee' }}>"Ahmed Ali"</span>
-                <span style={{ color: '#64748b' }}>;</span>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc', marginBottom: 4 }}>
+                Everything you need to ace AKUEB
               </div>
-              <div style={{ marginTop: 4 }}>
-                <span style={{ color: '#818cf8' }}>const</span>
-                <span style={{ color: '#f8fafc' }}> board </span>
-                <span style={{ color: '#64748b' }}>= </span>
-                <span style={{ color: '#22d3ee' }}>"AKUEB"</span>
-                <span style={{ color: '#64748b' }}>;</span>
-              </div>
-              <br />
-              <div>
-                <span style={{ color: '#818cf8' }}>function</span>
-                <span style={{ color: '#4ade80' }}> prepSmarter</span>
-                <span style={{ color: '#f8fafc' }}>() {'{'}</span>
-              </div>
-              <div style={{ paddingLeft: 20 }}>
-                <span style={{ color: '#818cf8' }}>return</span>
-                <span style={{ color: '#f8fafc' }}> {'{'}</span>
-              </div>
-              <div style={{ paddingLeft: 40 }}>
-                <span style={{ color: '#94a3b8' }}>sloMastery</span>
-                <span style={{ color: '#64748b' }}>: </span>
-                <span style={{ color: '#818cf8' }}>true</span>
-                <span style={{ color: '#64748b' }}>,</span>
-              </div>
-              <div style={{ paddingLeft: 40 }}>
-                <span style={{ color: '#94a3b8' }}>aiDoubtSolver</span>
-                <span style={{ color: '#64748b' }}>: </span>
-                <span style={{ color: '#818cf8' }}>true</span>
-                <span style={{ color: '#64748b' }}>,</span>
-              </div>
-              <div style={{ paddingLeft: 40 }}>
-                <span style={{ color: '#94a3b8' }}>pastPapers</span>
-                <span style={{ color: '#64748b' }}>: </span>
-                <span style={{ color: '#fbbf24' }}>2012</span>
-                <span style={{ color: '#64748b' }}>-</span>
-                <span style={{ color: '#fbbf24' }}>2025</span>
-                <span style={{ color: '#64748b' }}>,</span>
-              </div>
-              <div style={{ paddingLeft: 40 }}>
-                <span style={{ color: '#94a3b8' }}>targetGrade</span>
-                <span style={{ color: '#64748b' }}>: </span>
-                <span style={{ color: '#22d3ee' }}>"A*"</span>
-              </div>
-              <div style={{ paddingLeft: 20 }}>
-                <span style={{ color: '#f8fafc' }}>{'}'}</span>
-              </div>
-              <div>
-                <span style={{ color: '#f8fafc' }}>{'}'}</span>
-              </div>
-              <br />
-              <div>
-                <span style={{ color: '#4ade80' }}>prepSmarter</span>
-                <span style={{ color: '#f8fafc' }}>();</span>
+              <div style={{ fontSize: 12, color: '#64748b' }}>
+                All tools. All subjects. Completely free.
               </div>
             </div>
 
-            {/* Bottom tag row */}
             <div style={{
-              display: 'flex', gap: 8, padding: '10px 16px',
-              borderTop: '0.5px solid #252d45', background: '#141928',
-              flexWrap: 'wrap',
+              display: 'grid', gridTemplateColumns: '1fr 1fr',
+              gap: 10,
             }}>
-              {['SLO Radar', 'AI Notes', 'Past Papers', 'Exam Sim'].map(t => (
-                <span key={t} style={{
-                  fontSize: 11, padding: '2px 8px', borderRadius: 4,
-                  background: '#6366f115', color: '#818cf8',
-                  border: '0.5px solid #6366f130',
-                }}>{t}</span>
+              {[
+                { icon: '🧠', title: 'AI Doubt Solver', sub: '24/7 instant help', color: '#22d3ee' },
+                { icon: '✦', title: 'AI Notes', sub: 'On demand', color: '#818cf8' },
+                { icon: '📄', title: 'Past Papers', sub: '2012–2025', color: '#6366f1' },
+                { icon: '⚡', title: 'MCQ Quiz', sub: 'AI generated', color: '#4ade80' },
+                { icon: '⊙', title: 'Weakness Radar', sub: 'Auto-detected', color: '#f87171' },
+                { icon: '🗺', title: 'Study Plan', sub: 'Personalised', color: '#f59e0b' },
+              ].map(f => (
+                <div key={f.title} style={{
+                  background: '#141928',
+                  border: '0.5px solid #252d45',
+                  borderRadius: 12, padding: '14px 16px',
+                }}>
+                  <div style={{ fontSize: 18, marginBottom: 8 }}>{f.icon}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#f8fafc', marginBottom: 2, lineHeight: 1.3 }}>
+                    {f.title}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{f.sub}</div>
+                  <div style={{ height: 3, background: '#252d45', borderRadius: 99, marginTop: 8, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: '70%', background: f.color, borderRadius: 99 }} />
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
 
-          {/* Floating stat cards */}
-          <div style={{
-            position: 'absolute', top: -16, right: -16,
-            background: '#0f1422', border: '0.5px solid #252d45',
-            borderRadius: 10, padding: '8px 14px',
-            fontSize: 12, color: '#f8fafc', fontWeight: 600,
-            zIndex: 2,
-          }}>
-            🧠 AI Doubt Solver <span style={{ color: '#4ade80', marginLeft: 4 }}>● live</span>
-          </div>
-
-          <div style={{
-            position: 'absolute', bottom: 60, right: -20,
-            background: '#0f1422', border: '0.5px solid #252d45',
-            borderRadius: 10, padding: '8px 14px',
-            fontSize: 12, color: '#f8fafc', fontWeight: 600,
-            zIndex: 2,
-          }}>
-            📄 13 years of papers
+            <a href="/auth/signup" style={{
+              display: 'block', textAlign: 'center', marginTop: 18,
+              padding: '11px', borderRadius: 10,
+              background: '#6366f1', color: '#fff',
+              fontSize: 13, fontWeight: 600,
+              boxShadow: '0 0 20px #6366f140',
+            }}>
+              Start for free — takes 1 minute
+            </a>
           </div>
         </div>
       </div>
