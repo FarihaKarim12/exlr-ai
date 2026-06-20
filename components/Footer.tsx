@@ -88,55 +88,58 @@ export default function Footer() {
         </div>
 
         {/* Bottom row */}
-<div style={{
-  display: 'flex', alignItems: 'center',
-  justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
-}}>
-  <div style={{ fontSize: 12, color: '#64748b' }}>
-    © 2025 Exlr AI · Free for every AKUEB student
-  </div>
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
+        }}>
+          <div style={{ fontSize: 12, color: '#64748b' }}>
+            © 2025 Exlr AI · Free for every AKUEB student
+          </div>
 
-  {/* Dev links */}
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-    <span style={{ fontSize: 12, color: '#64748b' }}>Developer</span>
-    <a href="https://github.com/FarihaKarim12"
-      target="_blank" rel="noopener noreferrer"
-      style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        fontSize: 12, fontWeight: 500,
-        padding: '7px 14px', borderRadius: 8,
-        background: '#141928', border: '0.5px solid #252d45',
-        color: '#94a3b8', lineHeight: 1,
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.borderColor = '#6366f1'
-        e.currentTarget.style.color = '#f8fafc'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.borderColor = '#252d45'
-        e.currentTarget.style.color = '#94a3b8'
-      }}
-    >⌥ GitHub</a>
+          {/* Dev links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 12, color: '#64748b' }}>Developer</span>
+            <a href="https://github.com/FarihaKarim12"
+              target="_blank" rel="noopener noreferrer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 12, fontWeight: 500,
+                padding: '7px 14px', borderRadius: 8,
+                background: '#141928', border: '0.5px solid #252d45',
+                color: '#94a3b8', lineHeight: 1,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#6366f1'
+                e.currentTarget.style.color = '#f8fafc'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#252d45'
+                e.currentTarget.style.color = '#94a3b8'
+              }}
+            >⌥ GitHub</a>
 
-    <a href="https://linkedin.com/in/your-username"
-      target="_blank" rel="noopener noreferrer"
-      style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        fontSize: 12, fontWeight: 500,
-        padding: '7px 14px', borderRadius: 8,
-        background: '#141928', border: '0.5px solid #252d45',
-        color: '#94a3b8', lineHeight: 1,
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.borderColor = '#6366f1'
-        e.currentTarget.style.color = '#f8fafc'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.borderColor = '#252d45'
-        e.currentTarget.style.color = '#94a3b8'
-      }}
-    >in LinkedIn</a>
-  </div>
+            <a href="https://linkedin.com/in/your-username"
+              target="_blank" rel="noopener noreferrer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 12, fontWeight: 500,
+                padding: '7px 14px', borderRadius: 8,
+                background: '#141928', border: '0.5px solid #252d45',
+                color: '#94a3b8', lineHeight: 1,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#6366f1'
+                e.currentTarget.style.color = '#f8fafc'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#252d45'
+                e.currentTarget.style.color = '#94a3b8'
+              }}
+            >in LinkedIn</a>
+          </div>
+</div>
+
+      </div>
 
       <style>{`
         @media (max-width: 768px) {
