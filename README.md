@@ -2,7 +2,7 @@
 
 Next.js Version License: MIT Status: Live
 
-Exlr AI is a full-stack learning platform built to help Pakistani SSC and HSSC students prepare for their AKUEB exams — completely free. It combines a 13-year past papers archive with a suite of AI-powered study tools, so students get everything from notes to a full mock exam in one place, without paying a rupee.
+Exlr AI is a full-stack learning platform built to help AKUEB SSC and HSSC students prepare for their exams — completely free. It combines a 13-year past papers archive with a suite of AI-powered study tools, so students get everything from notes to a full mock exam in one place.
 
 ## 🌟 Key Features
 
