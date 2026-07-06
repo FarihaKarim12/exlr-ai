@@ -2,13 +2,6 @@
 
 import { useState } from 'react'
 import { Space_Grotesk } from 'next/font/google'
-import { supabase } from '@/lib/supabase'
-
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-space',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-})
 
 const subjects = [
   'Physics', 'Chemistry', 'Biology',
@@ -138,39 +131,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className={spaceGrotesk.variable} style={{
-      minHeight: '100vh', background: '#0a0e1a',
-      fontFamily: 'var(--font-space), system-ui, sans-serif',
-    }}>
-      <nav style={{
-        background: '#0a0e1aee', borderBottom: '0.5px solid #252d45',
-        padding: '0 24px', height: 60,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 50,
-        backdropFilter: 'blur(12px)',
-      }}>
-        <a href="/" style={{ 
-          fontSize: 20, fontWeight: 700, letterSpacing: '-0.5px', 
-          display: 'flex', alignItems: 'center', gap: 8 
-        }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: 8,
-            background: '#6366f1',
-            boxShadow: '0 0 12px #6366f180',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <polygon points="7,2 7,8 10,8 5,14 5,8 8,8" fill="white"/>
-            </svg>
-          </div>
-          <span style={{ color: '#f8fafc' }}>Exlr</span>
-          <span style={{ color: '#818cf8' }}>AI</span>
-        </a>
-        <a href="/dashboard" style={{ fontSize: 13, color: '#94a3b8', padding: '6px 14px', borderRadius: 8, border: '0.5px solid #252d45' }}>
-          Back to Dashboard
-        </a>
-      </nav>
+    <div style={{ minHeight: '100vh' }}>
 
       <div style={{ maxWidth: 700, margin: '0 auto', padding: '32px 24px' }}>
 

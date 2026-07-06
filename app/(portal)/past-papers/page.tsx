@@ -2,13 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Space_Grotesk } from 'next/font/google'
-
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-space',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-})
 
 const grades = ['9', '10', '11', '12']
 const years = ['2025','2024','2023','2022','2021','2019','2018','2017','2016','2015','2014','2013','2012']
@@ -49,43 +42,7 @@ export default function PastPapersPage() {
   } as React.CSSProperties)
 
   return (
-    <div className={spaceGrotesk.variable} style={{
-      minHeight: '100vh', background: '#0a0e1a',
-      fontFamily: 'var(--font-space), system-ui, sans-serif',
-    }}>
-
-      {/* Navbar */}
-      <nav style={{
-        background: '#0a0e1aee', borderBottom: '0.5px solid #252d45',
-        padding: '0 24px', height: 60,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 50,
-        backdropFilter: 'blur(12px)',
-      }}>
-        <a href="/" style={{ 
-          fontSize: 20, fontWeight: 700, letterSpacing: '-0.5px', 
-          display: 'flex', alignItems: 'center', gap: 8 
-        }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: 8,
-            background: '#6366f1',
-            boxShadow: '0 0 12px #6366f180',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <polygon points="7,2 7,8 10,8 5,14 5,8 8,8" fill="white"/>
-            </svg>
-          </div>
-          <span style={{ color: '#f8fafc' }}>Exlr</span>
-          <span style={{ color: '#818cf8' }}>AI</span>
-        </a>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <a href="/dashboard" style={{ fontSize: 13, color: '#94a3b8', padding: '6px 14px', borderRadius: 8, border: '0.5px solid #252d45' }}>
-            ← Dashboard
-          </a>
-        </div>
-      </nav>
+    <div style={{ minHeight: '100vh' }}>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
 

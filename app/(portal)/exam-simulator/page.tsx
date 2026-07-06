@@ -2,13 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Space_Grotesk } from 'next/font/google'
-
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-space',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-})
 
 const subjects = [
   'Physics', 'Chemistry', 'Biology',
@@ -145,45 +138,9 @@ export default function ExamSimulatorPage() {
     return { background: '#0a0e1a', border: '0.5px solid #252d45', color: '#64748b' }
   }
 
-  const NavBar = () => (
-    <nav style={{
-      background: '#0a0e1aee', borderBottom: '0.5px solid #252d45',
-      padding: '0 24px', height: 60,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(12px)',
-    }}>
-      <a href="/" style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: 8, background: '#6366f1',
-          boxShadow: '0 0 12px #6366f180', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <polygon points="7,2 7,8 10,8 5,14 5,8 8,8" fill="white"/>
-          </svg>
-        </div>
-        <span style={{ color: '#f8fafc' }}>Exlr</span>
-        <span style={{ color: '#818cf8' }}>AI</span>
-      </a>
-      {stage !== 'setup' && stage !== 'results' && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          fontSize: 14, fontWeight: 600,
-          color: timeLeft < 300 ? '#f87171' : '#22d3ee',
-        }}>
-          ⏱ {formatTime(timeLeft)}
-          {timeLeft < 300 && <span style={{ fontSize: 11, color: '#f87171' }}>Time running out!</span>}
-        </div>
-      )}
-      <a href="/dashboard" style={{ fontSize: 13, color: '#94a3b8', padding: '6px 14px', borderRadius: 8, border: '0.5px solid #252d45' }}>
-        Back to Dashboard
-      </a>
-    </nav>
-  )
-
   // Setup screen
   if (stage === 'setup') return (
-    <div className={spaceGrotesk.variable} style={{ minHeight: '100vh', background: '#0a0e1a', fontFamily: 'var(--font-space), system-ui, sans-serif' }}>
-      <NavBar />
+    <div style={{ minHeight: '100vh' }}>
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '48px 24px' }}>
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#22d3ee', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8 }}>Exam simulator</div>
@@ -255,8 +212,7 @@ export default function ExamSimulatorPage() {
 
   // Paper 1
   if (stage === 'paper1') return (
-    <div className={spaceGrotesk.variable} style={{ minHeight: '100vh', background: '#0a0e1a', fontFamily: 'var(--font-space), system-ui, sans-serif' }}>
-      <NavBar />
+    <div style={{ minHeight: '100vh' }}>
       <div style={{ maxWidth: 750, margin: '0 auto', padding: '24px' }}>
 
         {/* Header */}
@@ -360,8 +316,7 @@ export default function ExamSimulatorPage() {
 
   // Paper 2
   if (stage === 'paper2') return (
-    <div className={spaceGrotesk.variable} style={{ minHeight: '100vh', background: '#0a0e1a', fontFamily: 'var(--font-space), system-ui, sans-serif' }}>
-      <NavBar />
+    <div style={{ minHeight: '100vh' }}>
       <div style={{ maxWidth: 750, margin: '0 auto', padding: '24px' }}>
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#22d3ee', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 6 }}>Paper 2 — CRQ / ERQ</div>
@@ -447,8 +402,7 @@ export default function ExamSimulatorPage() {
     const gradeColor = overall >= 70 ? '#4ade80' : overall >= 50 ? '#fbbf24' : '#f87171'
 
     return (
-      <div className={spaceGrotesk.variable} style={{ minHeight: '100vh', background: '#0a0e1a', fontFamily: 'var(--font-space), system-ui, sans-serif' }}>
-        <NavBar />
+      <div style={{ minHeight: '100vh' }}>
         <div style={{ maxWidth: 700, margin: '0 auto', padding: '48px 24px' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
             <div style={{ fontSize: 60, marginBottom: 16 }}>
