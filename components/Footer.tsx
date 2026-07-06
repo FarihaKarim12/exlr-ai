@@ -93,7 +93,7 @@ export default function Footer() {
           justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
         }}>
           <div style={{ fontSize: 12, color: '#64748b' }}>
-            © 2025 Exlr AI · Free for every AKUEB student
+            © 2026 Exlr AI · Free for every AKUEB student
           </div>
 
           {/* Dev links */}
