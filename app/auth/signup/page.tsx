@@ -14,6 +14,7 @@ export default function SignupPage() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSignup = async () => {
     setLoading(true)
@@ -136,13 +137,29 @@ export default function SignupPage() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Password</label>
-                <input style={inputStyle} type="password" placeholder="Min 8 characters"
-                  value={form.password}
-                  onChange={e => setForm({ ...form, password: e.target.value })}
-                  onFocus={e => (e.target.style.borderColor = '#6366f1')}
-                  onBlur={e => (e.target.style.borderColor = '#252d45')}
-                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8' }}>
+                    Password
+                  </label>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <input style={inputStyle} type={showPassword ? 'text' : 'password'} placeholder="Enter your password"
+                    value={form.password}
+                    onChange={e => setForm({ ...form, password: e.target.value })}
+                    onFocus={e => (e.target.style.borderColor = '#6366f1')}
+                    onBlur={e => (e.target.style.borderColor = '#252d45')}
+                    onKeyDown={e => e.key === 'Enter' && handleSignup()}
+                  />
+                  <button onClick={() => setShowPassword(!showPassword)} type="button" style={{
+                    position: 'absolute', right: 12, top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none', border: 'none',
+                    cursor: 'pointer', color: '#64748b',
+                    fontSize: 14, padding: 0,
+                  }}>
+                    {showPassword ? '👁' : '👁'}
+                  </button>
+                </div>
               </div>
               <button onClick={() => {
                 if (!form.fullName || !form.email || !form.password) {

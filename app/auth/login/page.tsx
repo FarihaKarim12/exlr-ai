@@ -7,6 +7,7 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async () => {
     if (!form.email || !form.password) {
@@ -100,13 +101,24 @@ export default function LoginPage() {
                   Forgot password?
                 </a>
               </div>
-              <input style={inputStyle} type="password" placeholder="Enter your password"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                onFocus={e => (e.target.style.borderColor = '#6366f1')}
-                onBlur={e => (e.target.style.borderColor = '#252d45')}
-                onKeyDown={e => e.key === 'Enter' && handleLogin()}
-              />
+              <div style={{ position: 'relative' }}>
+                <input style={inputStyle} type={showPassword ? 'text' : 'password'} placeholder="Enter your password"
+                  value={form.password}
+                  onChange={e => setForm({ ...form, password: e.target.value })}
+                  onFocus={e => (e.target.style.borderColor = '#6366f1')}
+                  onBlur={e => (e.target.style.borderColor = '#252d45')}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                />
+                <button onClick={() => setShowPassword(!showPassword)} type="button" style={{
+                  position: 'absolute', right: 12, top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none', border: 'none',
+                  cursor: 'pointer', color: '#64748b',
+                  fontSize: 14, padding: 0,
+                }}>
+                  {showPassword ? '👁' : '👁'}
+                </button>
+              </div>
             </div>
 
             {error && (
