@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Space_Grotesk } from 'next/font/google'
+import { supabase } from '@/lib/supabase'
 
 const subjects = [
   'Physics', 'Chemistry', 'Biology',
