@@ -1,208 +1,249 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science'];
+
+interface Module {
+  title: string;
+  description: string;
+  status: 'locked' | 'available' | 'completed';
+}
 
 export default function LearningPathPage() {
-  const [mastery, setMastery] = useState<any[]>([])
-  const [profile, setProfile] = useState<any>(null)
-  const [path, setPath] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [dataLoading, setDataLoading] = useState(true)
+  const [subject, setSubject] = useState(SUBJECTS[0]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [modules, setModules] = useState<Module[]>([]);
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth/login'; return }
+    loadPath(subject);
+  }, [subject]);
 
-      const [{ data: profileData }, { data: masteryData }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('topic_mastery').select('*').eq('student_id', user.id).order('score_percent'),
-      ])
-
-      setProfile(profileData)
-      setMastery(masteryData || [])
-      setDataLoading(false)
-    }
-    load()
-  }, [])
-
-  const generatePath = async () => {
-    setLoading(true)
-    setPath('')
+  async function loadPath(subj: string) {
+    setLoading(true);
+    setError('');
     try {
+      const { data: userData } = await supabase.auth.getUser();
+      let completedTitles: string[] = [];
+      if (userData?.user) {
+        const { data } = await supabase
+          .from('learning_progress')
+          .select('module_title')
+          .eq('user_id', userData.user.id)
+          .eq('subject', subj);
+        completedTitles = (data || []).map((r: any) => r.module_title);
+      }
+
       const res = await fetch('/api/learning-path', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mastery, profile }),
-      })
-      const data = await res.json()
-      setPath(data.path)
-    } catch {
-      setPath('Sorry, something went wrong. Please try again.')
+        body: JSON.stringify({ subject: subj }),
+      });
+      if (!res.ok) throw new Error('failed');
+      const data = await res.json();
+      const raw: { title: string; description: string }[] = data.modules || [];
+
+      const withStatus: Module[] = raw.map((m, i) => {
+        if (completedTitles.includes(m.title)) return { ...m, status: 'completed' };
+        const prevCompleted = i === 0 || completedTitles.includes(raw[i - 1].title);
+        return { ...m, status: prevCompleted ? 'available' : 'locked' };
+      });
+      setModules(withStatus);
+    } catch (e) {
+      setError('Could not load the learning path right now.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  const weakTopics = mastery.filter(m => m.status === 'red')
-  const partialTopics = mastery.filter(m => m.status === 'amber')
-  const masteredTopics = mastery.filter(m => m.status === 'green')
+  async function markComplete(title: string) {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) return;
+    await supabase.from('learning_progress').insert({
+      user_id: userData.user.id,
+      subject,
+      module_title: title,
+    });
+    loadPath(subject);
+  }
+
+  const completedCount = modules.filter((m) => m.status === 'completed').length;
+  const progressPct = modules.length ? Math.round((completedCount / modules.length) * 100) : 0;
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      <div
+        style={{
+          padding: '32px 32px 0',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: 28,
+          paddingBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#6366f1',
+            letterSpacing: '.1em',
+            textTransform: 'uppercase',
+            marginBottom: 8,
+          }}
+        >
+          Curriculum
+        </div>
+        <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
+          Learning Path
+        </h1>
+        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+          A guided sequence of modules built for the AKUEB syllabus
+        </p>
+      </div>
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px' }}>
-
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#22d3ee', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8 }}>
-            AI powered
-          </div>
-          <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 6 }}>
-            Your Personalised Learning Path
-          </h1>
-          <p style={{ fontSize: 13, color: '#64748b' }}>
-            AI analyses your quiz results and generates a focused study path targeting your weak areas.
-          </p>
+      <div style={{ padding: '0 32px 32px' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 24 }}>
+          {SUBJECTS.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSubject(s)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                border: s === subject ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                background: s === subject ? 'rgba(99,102,241,0.15)' : 'rgba(15,20,34,0.5)',
+                color: s === subject ? '#a5b4fc' : '#94a3b8',
+                transition: 'all 0.25s ease',
+              }}
+            >
+              {s}
+            </button>
+          ))}
         </div>
 
-        {dataLoading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#64748b' }}>Loading your data...</div>
-        ) : mastery.length === 0 ? (
-          <div style={{
-            textAlign: 'center', padding: 60,
-            background: '#0f1422', border: '0.5px solid #252d45', borderRadius: 12,
-          }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc', marginBottom: 8 }}>
-              No quiz data yet
-            </div>
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
-              Take some quizzes first so AI can analyse your strengths and weaknesses.
-            </div>
-            <a href="/quiz" style={{
-              fontSize: 13, fontWeight: 600, padding: '10px 22px',
-              borderRadius: 9, background: '#6366f1', color: '#fff',
-            }}>Take a quiz →</a>
+        {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                border: '3px solid rgba(99,102,241,0.2)',
+                borderTopColor: '#6366f1',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : (
           <>
-            {/* Current performance summary */}
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 10, marginBottom: 24,
-            }} className="path-grid">
-              <div style={{ background: '#f8717110', border: '0.5px solid #f8717130', borderRadius: 12, padding: '16px 20px' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#f87171', marginBottom: 4 }}>{weakTopics.length}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>Weak topics</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Need urgent attention</div>
+            <div
+              style={{
+                background: 'rgba(15,20,34,0.5)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 16,
+                padding: 20,
+                marginBottom: 24,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: 13 }}>
+                <span style={{ color: '#94a3b8' }}>{subject} progress</span>
+                <span style={{ color: '#a5b4fc', fontWeight: 700 }}>{progressPct}%</span>
               </div>
-              <div style={{ background: '#fbbf2410', border: '0.5px solid #fbbf2430', borderRadius: 12, padding: '16px 20px' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>{partialTopics.length}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>Partial topics</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Need more practice</div>
-              </div>
-              <div style={{ background: '#4ade8010', border: '0.5px solid #4ade8030', borderRadius: 12, padding: '16px 20px' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80', marginBottom: 4 }}>{masteredTopics.length}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>Mastered topics</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Keep it up!</div>
+              <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
+                <div
+                  style={{
+                    width: `${progressPct}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
+                    borderRadius: 4,
+                    transition: 'width 0.4s ease',
+                  }}
+                />
               </div>
             </div>
 
-            {/* Weak topics list */}
-            {weakTopics.length > 0 && (
-              <div style={{
-                background: '#0f1422', border: '0.5px solid #252d45',
-                borderRadius: 12, padding: '20px', marginBottom: 20,
-              }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#f87171', marginBottom: 12 }}>
-                  🔴 Topics needing urgent attention
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {weakTopics.map(t => (
-                    <div key={t.id} style={{
-                      fontSize: 12, padding: '4px 10px', borderRadius: 6,
-                      background: '#f8717110', border: '0.5px solid #f8717130', color: '#f87171',
-                    }}>
-                      {t.topic} ({t.subject} G{t.grade}) — {Math.round(t.score_percent)}%
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {partialTopics.length > 0 && (
-              <div style={{
-                background: '#0f1422', border: '0.5px solid #252d45',
-                borderRadius: 12, padding: '20px', marginBottom: 20,
-              }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#fbbf24', marginBottom: 12 }}>
-                  🟡 Topics needing more practice
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {partialTopics.map(t => (
-                    <div key={t.id} style={{
-                      fontSize: 12, padding: '4px 10px', borderRadius: 6,
-                      background: '#fbbf2410', border: '0.5px solid #fbbf2430', color: '#fbbf24',
-                    }}>
-                      {t.topic} ({t.subject} G{t.grade}) — {Math.round(t.score_percent)}%
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <button onClick={generatePath} disabled={loading} style={{
-              width: '100%', padding: 12, borderRadius: 10,
-              background: '#6366f1', color: '#fff', border: 'none',
-              cursor: 'pointer', fontSize: 14, fontWeight: 600,
-              boxShadow: '0 0 24px #6366f140',
-              opacity: loading ? 0.7 : 1,
-              fontFamily: 'inherit', marginBottom: 20,
-            }}>
-              {loading ? 'Generating your personalised path...' : 'Generate My Learning Path'}
-            </button>
-
-            {(path || loading) && (
-              <div style={{
-                background: '#0f1422', border: '0.5px solid #252d45',
-                borderRadius: 14, overflow: 'hidden',
-              }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '14px 20px', borderBottom: '0.5px solid #252d45',
-                  background: '#141928',
-                }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc' }}>
-                    Your personalised learning path
+            <div style={{ display: 'grid', gap: 14 }}>
+              {modules.map((m, i) => (
+                <div
+                  key={m.title}
+                  style={{
+                    background: 'rgba(15,20,34,0.5)',
+                    backdropFilter: 'blur(20px)',
+                    border:
+                      m.status === 'completed'
+                        ? '1px solid rgba(74,222,128,0.2)'
+                        : '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 16,
+                    padding: 20,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    opacity: m.status === 'locked' ? 0.5 : 1,
+                    transition: 'all 0.25s ease',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      flexShrink: 0,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      background:
+                        m.status === 'completed'
+                          ? 'rgba(74,222,128,0.15)'
+                          : m.status === 'available'
+                          ? 'rgba(99,102,241,0.15)'
+                          : 'rgba(255,255,255,0.05)',
+                      color: m.status === 'completed' ? '#4ade80' : m.status === 'available' ? '#a5b4fc' : '#64748b',
+                    }}
+                  >
+                    {m.status === 'completed' ? '✦' : i + 1}
                   </div>
-                  {path && (
-                    <button onClick={() => navigator.clipboard.writeText(path)} style={{
-                      fontSize: 12, padding: '5px 12px', borderRadius: 7,
-                      background: '#6366f115', border: '0.5px solid #6366f130',
-                      color: '#818cf8', cursor: 'pointer', fontFamily: 'inherit',
-                    }}>Copy</button>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{m.title}</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>{m.description}</div>
+                  </div>
+                  {m.status === 'available' && (
+                    <button
+                      onClick={() => markComplete(m.title)}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        border: 'none',
+                        borderRadius: 8,
+                        color: '#fff',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.25s ease',
+                      }}
+                    >
+                      Mark done
+                    </button>
+                  )}
+                  {m.status === 'completed' && (
+                    <span style={{ fontSize: 12, color: '#4ade80', fontWeight: 600 }}>Completed</span>
                   )}
                 </div>
-                <div style={{ padding: '20px 24px' }}>
-                  {loading ? (
-                    <div style={{ color: '#64748b', fontSize: 13 }}>Analysing your performance and generating path...</div>
-                  ) : (
-                    <div style={{ fontSize: 13, color: '#f8fafc', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                      {path}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+              ))}
+            </div>
           </>
         )}
       </div>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .path-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
-  )
+  );
 }

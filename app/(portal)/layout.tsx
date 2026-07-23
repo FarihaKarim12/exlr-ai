@@ -16,7 +16,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       fontFamily: 'var(--font-space), system-ui, sans-serif',
     }}>
       <Sidebar />
-      <main style={{ flex: 1, overflowX: 'hidden' }}>
+      <main style={{ flex: 1, overflowX: 'hidden', minWidth: 0 }}>
         {children}
       </main>
     </div>

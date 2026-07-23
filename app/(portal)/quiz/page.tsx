@@ -1,352 +1,314 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
-const subjects = [
-  'Physics', 'Chemistry', 'Biology',
-  'Mathematics', 'Computer Science',
-  'Islamiyat', 'Pakistan Studies',
-]
+const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science', 'Urdu', 'Pakistan Studies'];
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 
 interface Question {
-  question: string
-  options: { a: string; b: string; c: string; d: string }
-  correct: 'a' | 'b' | 'c' | 'd'
-  explanation: string
+  question: string;
+  options: string[];
+  answer: number;
+  explanation?: string;
 }
 
 export default function QuizPage() {
-  const [subject, setSubject] = useState('')
-  const [grade, setGrade] = useState('')
-  const [topic, setTopic] = useState('')
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [current, setCurrent] = useState(0)
-  const [selected, setSelected] = useState<string | null>(null)
-  const [answers, setAnswers] = useState<string[]>([])
-  const [showResult, setShowResult] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [quizStarted, setQuizStarted] = useState(false)
+  const [subject, setSubject] = useState(SUBJECTS[0]);
+  const [topic, setTopic] = useState('');
+  const [difficulty, setDifficulty] = useState('Medium');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [submitted, setSubmitted] = useState(false);
 
-  const generateQuiz = async () => {
-    if (!subject || !grade) return
-    setLoading(true)
+  async function generateQuiz() {
+    if (!topic.trim()) {
+      setError('Enter a topic to build your quiz.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    setQuestions([]);
+    setAnswers({});
+    setSubmitted(false);
     try {
       const res = await fetch('/api/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject, grade, topic }),
-      })
-      const data = await res.json()
-
-      if (!data.questions || data.questions.length === 0) {
-        alert('Failed to generate quiz questions. This can happen if our AI provider is busy. Please wait a moment and try again.')
-        setLoading(false)
-        return
-      }
-
-      setQuestions(data.questions)
-      setQuizStarted(true)
-      setCurrent(0)
-      setAnswers([])
-      setSelected(null)
-      setShowResult(false)
-    } catch (err) {
-      console.error('Quiz generation error:', err)
-      alert('Failed to generate quiz. Please check your connection and try again.')
+        body: JSON.stringify({ subject, topic, difficulty }),
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      const data = await res.json();
+      setQuestions(data.questions || []);
+    } catch (e) {
+      setError('Could not generate the quiz right now. Try again in a moment.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  const handleAnswer = (option: string) => {
-    if (selected) return
-    setSelected(option)
+  function selectAnswer(qIndex: number, optIndex: number) {
+    if (submitted) return;
+    setAnswers((prev) => ({ ...prev, [qIndex]: optIndex }));
   }
 
-  const handleNext = async () => {
-    if (!selected) return
-    const newAnswers = [...answers, selected]
-    setAnswers(newAnswers)
-
-    if (current + 1 >= questions.length) {
-      // Save results to database
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const correct = newAnswers.filter((a, i) => a === questions[i]?.correct).length
-        const scorePercent = (correct / questions.length) * 100
-        const status = scorePercent >= 71 ? 'green' : scorePercent >= 41 ? 'amber' : 'red'
-
-        await supabase.from('topic_mastery').upsert({
-          student_id: user.id,
-          subject,
-          topic: topic || subject,
-          grade,
-          attempts: questions.length,
-          correct,
-          score_percent: scorePercent,
-          status,
-          last_attempted: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'student_id,subject,topic,grade'
-        })
-      }
-      setShowResult(true)
-    } else {
-      setCurrent(current + 1)
-      setSelected(null)
+  async function submitQuiz() {
+    setSubmitted(true);
+    const score = questions.reduce((acc, q, i) => (answers[i] === q.answer ? acc + 1 : acc), 0);
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData?.user) {
+      await supabase.from('quiz_results').insert({
+        user_id: userData.user.id,
+        subject,
+        topic,
+        difficulty,
+        score,
+        total: questions.length,
+      });
     }
   }
 
-  const resetQuiz = () => {
-    setQuizStarted(false)
-    setQuestions([])
-    setCurrent(0)
-    setAnswers([])
-    setSelected(null)
-    setShowResult(false)
-    setTopic('')
-  }
-
-  const score = answers.filter((a, i) => a === questions[i]?.correct).length
-
-  const optionStyle = (opt: string) => {
-    if (!selected) return {
-      background: '#0a0e1a', border: '0.5px solid #252d45',
-      color: '#94a3b8',
-    }
-    if (opt === questions[current]?.correct) return {
-      background: '#4ade8015', border: '1.5px solid #4ade80',
-      color: '#4ade80',
-    }
-    if (opt === selected && opt !== questions[current]?.correct) return {
-      background: '#f8717115', border: '1.5px solid #f87171',
-      color: '#f87171',
-    }
-    return {
-      background: '#0a0e1a', border: '0.5px solid #252d45',
-      color: '#64748b',
-    }
-  }
+  const score = questions.reduce((acc, q, i) => (answers[i] === q.answer ? acc + 1 : acc), 0);
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      <div
+        style={{
+          padding: '32px 32px 0',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: 28,
+          paddingBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#6366f1',
+            letterSpacing: '.1em',
+            textTransform: 'uppercase',
+            marginBottom: 8,
+          }}
+        >
+          Practice
+        </div>
+        <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
+          Quiz
+        </h1>
+        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>Test yourself with AI-generated MCQs</p>
+      </div>
 
-      <div style={{ maxWidth: 700, margin: '0 auto', padding: '32px 24px' }}>
+      <div style={{ padding: '0 32px 32px' }}>
+        <div
+          style={{
+            background: 'rgba(15,20,34,0.5)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 16,
+            padding: 24,
+            marginBottom: 24,
+          }}
+        >
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+            <div style={{ flex: '1 1 180px' }}>
+              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
+              <select
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                style={selectStyle}
+              >
+                {SUBJECTS.map((s) => (
+                  <option key={s} value={s} style={{ background: '#0a0e1a' }}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div style={{ flex: '2 1 240px' }}>
+              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Topic</label>
+              <input
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="e.g. Cell Division, Trigonometry"
+                style={selectStyle}
+              />
+            </div>
+            <div style={{ flex: '1 1 140px' }}>
+              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Difficulty</label>
+              <select
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                style={selectStyle}
+              >
+                {DIFFICULTIES.map((d) => (
+                  <option key={d} value={d} style={{ background: '#0a0e1a' }}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-        {!quizStarted ? (
+          {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 12 }}>{error}</div>}
+
+          <button
+            onClick={generateQuiz}
+            disabled={loading}
+            style={{
+              padding: '12px 24px',
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              border: 'none',
+              borderRadius: 10,
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: loading ? 'default' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+              transition: 'all 0.25s ease',
+            }}
+            onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+          >
+            {loading ? 'Building quiz…' : '◉ Generate Quiz'}
+          </button>
+        </div>
+
+        {loading && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                border: '3px solid rgba(99,102,241,0.2)',
+                borderTopColor: '#6366f1',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        )}
+
+        {questions.length > 0 && (
           <>
-            <div style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#22d3ee', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8 }}>
-                AI powered
-              </div>
-              <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 6 }}>
-                MCQ Quiz Engine
-              </h1>
-              <p style={{ fontSize: 13, color: '#64748b' }}>
-                AI generates 10 AKUEB-style MCQs on any topic. Test your knowledge instantly.
-              </p>
-            </div>
-
-            <div style={{
-              background: '#0f1422', border: '0.5px solid #252d45',
-              borderRadius: 14, padding: 24,
-            }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }} className="quiz-grid">
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Subject *</label>
-                  <select value={subject} onChange={e => setSubject(e.target.value)} style={{
-                    width: '100%', background: '#0a0e1a', border: '0.5px solid #252d45',
-                    borderRadius: 10, padding: '10px 14px', fontSize: 13,
-                    color: subject ? '#f8fafc' : '#64748b', fontFamily: 'inherit', outline: 'none',
-                  }}>
-                    <option value="">Select subject</option>
-                    {subjects.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+            {submitted && (
+              <div
+                style={{
+                  background: 'rgba(99,102,241,0.1)',
+                  border: '1px solid rgba(99,102,241,0.3)',
+                  borderRadius: 16,
+                  padding: 20,
+                  marginBottom: 20,
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#a5b4fc' }}>
+                  {score} / {questions.length}
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Grade *</label>
-                  <select value={grade} onChange={e => setGrade(e.target.value)} style={{
-                    width: '100%', background: '#0a0e1a', border: '0.5px solid #252d45',
-                    borderRadius: 10, padding: '10px 14px', fontSize: 13,
-                    color: grade ? '#f8fafc' : '#64748b', fontFamily: 'inherit', outline: 'none',
-                  }}>
-                    <option value="">Select grade</option>
-                    {['9', '10', '11', '12'].map(g => <option key={g} value={g}>Grade {g}</option>)}
-                  </select>
-                </div>
+                <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>Your score</div>
               </div>
+            )}
 
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>
-                  Topic <span style={{ color: '#64748b', fontWeight: 400 }}>(optional — leave blank for random)</span>
-                </label>
-                <input
-                  value={topic}
-                  onChange={e => setTopic(e.target.value)}
-                  placeholder="e.g. Newton's Laws, Photosynthesis, Acids and Bases..."
+            <div style={{ display: 'grid', gap: 16 }}>
+              {questions.map((q, qi) => (
+                <div
+                  key={qi}
                   style={{
-                    width: '100%', background: '#0a0e1a', border: '0.5px solid #252d45',
-                    borderRadius: 10, padding: '10px 14px', fontSize: 13,
-                    color: '#f8fafc', fontFamily: 'inherit', outline: 'none',
+                    background: 'rgba(15,20,34,0.5)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 16,
+                    padding: 20,
                   }}
-                  onFocus={e => (e.target.style.borderColor = '#6366f1')}
-                  onBlur={e => (e.target.style.borderColor = '#252d45')}
-                />
-              </div>
-
-              <button onClick={generateQuiz} disabled={loading || !subject || !grade} style={{
-                width: '100%', padding: 12, borderRadius: 10,
-                background: '#6366f1', color: '#fff', border: 'none',
-                cursor: 'pointer', fontSize: 14, fontWeight: 600,
-                boxShadow: '0 0 24px #6366f140',
-                opacity: loading || !subject || !grade ? 0.6 : 1,
-                fontFamily: 'inherit',
-              }}>
-                {loading ? 'Generating quiz...' : 'Generate 10 MCQs'}
-              </button>
-            </div>
-          </>
-        ) : showResult ? (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>
-              {score >= 8 ? '🎉' : score >= 6 ? '👍' : score >= 4 ? '📚' : '💪'}
-            </div>
-            <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 8 }}>
-              You scored <span style={{ color: score >= 7 ? '#4ade80' : score >= 5 ? '#fbbf24' : '#f87171' }}>{score}/10</span>
-            </h2>
-            <p style={{ fontSize: 13, color: '#64748b', marginBottom: 32 }}>
-              {score >= 8 ? 'Excellent! You have a strong grasp of this topic.' :
-               score >= 6 ? 'Good job! Review the questions you got wrong.' :
-               score >= 4 ? 'Keep practising! Focus on the weak areas.' :
-               'Don\'t give up! Review your notes and try again.'}
-            </p>
-
-            {/* Review answers */}
-            <div style={{ textAlign: 'left', marginBottom: 28 }}>
-              {questions.map((q, i) => (
-                <div key={i} style={{
-                  background: '#0f1422', border: `0.5px solid ${answers[i] === q.correct ? '#4ade8030' : '#f8717130'}`,
-                  borderRadius: 12, padding: '16px 20px', marginBottom: 10,
-                }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: '#f8fafc', marginBottom: 8 }}>
-                    {i + 1}. {q.question}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>
+                    {qi + 1}. {q.question}
                   </div>
-                  <div style={{ fontSize: 12, color: answers[i] === q.correct ? '#4ade80' : '#f87171', marginBottom: 4 }}>
-                    Your answer: {q.options[answers[i] as keyof typeof q.options]}
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {q.options.map((opt, oi) => {
+                      const isSelected = answers[qi] === oi;
+                      const isCorrect = submitted && oi === q.answer;
+                      const isWrong = submitted && isSelected && oi !== q.answer;
+                      return (
+                        <div
+                          key={oi}
+                          onClick={() => selectAnswer(qi, oi)}
+                          style={{
+                            padding: '10px 14px',
+                            borderRadius: 10,
+                            fontSize: 13,
+                            cursor: submitted ? 'default' : 'pointer',
+                            border: isCorrect
+                              ? '1px solid rgba(74,222,128,0.5)'
+                              : isWrong
+                              ? '1px solid rgba(248,113,113,0.5)'
+                              : isSelected
+                              ? '1px solid rgba(99,102,241,0.5)'
+                              : '1px solid rgba(255,255,255,0.06)',
+                            background: isCorrect
+                              ? 'rgba(74,222,128,0.1)'
+                              : isWrong
+                              ? 'rgba(248,113,113,0.1)'
+                              : isSelected
+                              ? 'rgba(99,102,241,0.1)'
+                              : 'rgba(10,14,26,0.4)',
+                            color: '#e2e8f0',
+                            transition: 'all 0.25s ease',
+                          }}
+                        >
+                          {opt}
+                        </div>
+                      );
+                    })}
                   </div>
-                  {answers[i] !== q.correct && (
-                    <div style={{ fontSize: 12, color: '#4ade80', marginBottom: 4 }}>
-                      Correct: {q.options[q.correct]}
+                  {submitted && q.explanation && (
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
+                      ◐ {q.explanation}
                     </div>
                   )}
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, paddingTop: 6, borderTop: '0.5px solid #252d45' }}>
-                    {q.explanation}
-                  </div>
                 </div>
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-              <button onClick={generateQuiz} style={{
-                padding: '11px 24px', borderRadius: 10,
-                background: '#6366f1', color: '#fff', border: 'none',
-                cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                fontFamily: 'inherit',
-              }}>Try again</button>
-              <button onClick={resetQuiz} style={{
-                padding: '11px 24px', borderRadius: 10,
-                background: 'transparent', color: '#94a3b8',
-                border: '0.5px solid #252d45',
-                cursor: 'pointer', fontSize: 13, fontWeight: 500,
-                fontFamily: 'inherit',
-              }}>New quiz</button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            {/* Progress */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', marginBottom: 8 }}>
-                <span>{subject} · Grade {grade}{topic ? ` · ${topic}` : ''}</span>
-                <span>Question {current + 1} of {questions.length}</span>
-              </div>
-              <div style={{ height: 4, background: '#1a2035', borderRadius: 99, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', borderRadius: 99, background: '#6366f1',
-                  width: `${((current + 1) / questions.length) * 100}%`,
-                  transition: 'width .3s',
-                }} />
-              </div>
-            </div>
-
-            {/* Question */}
-            <div style={{
-              background: '#0f1422', border: '0.5px solid #252d45',
-              borderRadius: 14, padding: '24px', marginBottom: 14,
-            }}>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc', lineHeight: 1.6, marginBottom: 20 }}>
-                {current + 1}. {questions[current]?.question}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(['a', 'b', 'c', 'd'] as const).map(opt => (
-                  <button key={opt} onClick={() => handleAnswer(opt)} style={{
-                    ...optionStyle(opt),
-                    padding: '12px 16px', borderRadius: 10,
-                    fontSize: 13, textAlign: 'left', cursor: selected ? 'default' : 'pointer',
-                    fontFamily: 'inherit', transition: 'all .2s',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                  }}>
-                    <span style={{
-                      width: 24, height: 24, borderRadius: '50%',
-                      background: selected === opt ? (opt === questions[current]?.correct ? '#4ade80' : '#f87171') :
-                                  (selected && opt === questions[current]?.correct ? '#4ade80' : '#1a2035'),
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 11, fontWeight: 700, flexShrink: 0,
-                      color: '#fff',
-                    }}>
-                      {opt.toUpperCase()}
-                    </span>
-                    {questions[current]?.options[opt]}
-                  </button>
-                ))}
-              </div>
-
-              {selected && (
-                <div style={{
-                  marginTop: 16, padding: '12px 16px', borderRadius: 10,
-                  background: selected === questions[current]?.correct ? '#4ade8010' : '#f8717110',
-                  border: `0.5px solid ${selected === questions[current]?.correct ? '#4ade8030' : '#f8717130'}`,
-                  fontSize: 13,
-                  color: selected === questions[current]?.correct ? '#4ade80' : '#f87171',
-                }}>
-                  {selected === questions[current]?.correct ? '✓ Correct! ' : '✗ Incorrect. '}
-                  <span style={{ color: '#94a3b8' }}>{questions[current]?.explanation}</span>
-                </div>
-              )}
-            </div>
-
-            <button onClick={handleNext} disabled={!selected} style={{
-              width: '100%', padding: 12, borderRadius: 10,
-              background: '#6366f1', color: '#fff', border: 'none',
-              cursor: selected ? 'pointer' : 'default',
-              fontSize: 14, fontWeight: 600,
-              opacity: selected ? 1 : 0.4,
-              fontFamily: 'inherit',
-            }}>
-              {current + 1 >= questions.length ? 'See results →' : 'Next question →'}
-            </button>
-          </div>
+            {!submitted && (
+              <button
+                onClick={submitQuiz}
+                disabled={Object.keys(answers).length !== questions.length}
+                style={{
+                  marginTop: 20,
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  border: 'none',
+                  borderRadius: 10,
+                  color: '#fff',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: Object.keys(answers).length === questions.length ? 'pointer' : 'default',
+                  opacity: Object.keys(answers).length === questions.length ? 1 : 0.5,
+                  boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+                  transition: 'all 0.25s ease',
+                }}
+              >
+                ✦ Submit Answers
+              </button>
+            )}
+          </>
         )}
       </div>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .quiz-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
-  )
+  );
 }
+
+const selectStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 14px',
+  background: 'rgba(10,14,26,0.6)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 10,
+  color: '#e2e8f0',
+  fontSize: 14,
+  outline: 'none',
+};

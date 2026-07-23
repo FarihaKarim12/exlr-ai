@@ -1,177 +1,274 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
-const subjects = [
-  'Physics', 'Chemistry', 'Biology',
-  'Mathematics', 'Computer Science',
-  'Islamiyat', 'Pakistan Studies',
-]
+interface PlanDay {
+  day: string;
+  focus: string;
+  tasks: string[];
+}
 
 export default function StudyPlanPage() {
-  const [grade, setGrade] = useState('')
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
-  const [examDate, setExamDate] = useState('')
-  const [hoursPerDay, setHoursPerDay] = useState('2')
-  const [plan, setPlan] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [examDate, setExamDate] = useState('');
+  const [subjects, setSubjects] = useState('');
+  const [hoursPerDay, setHoursPerDay] = useState('3');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [plan, setPlan] = useState<PlanDay[]>([]);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
 
-  const toggleSubject = (s: string) => {
-    setSelectedSubjects(prev =>
-      prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]
-    )
+  useEffect(() => {
+    loadExisting();
+  }, []);
+
+  async function loadExisting() {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) return;
+    const { data } = await supabase
+      .from('study_plans')
+      .select('*')
+      .eq('user_id', userData.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (data?.plan) setPlan(data.plan);
   }
 
-  const generatePlan = async () => {
-    if (!grade || selectedSubjects.length === 0) return
-    setLoading(true)
-    setPlan('')
+  async function generatePlan() {
+    if (!subjects.trim() || !examDate) {
+      setError('Add your exam date and the subjects you want to cover.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    setPlan([]);
     try {
       const res = await fetch('/api/study-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ grade, subjects: selectedSubjects, examDate, hoursPerDay }),
-      })
-      const data = await res.json()
-      setPlan(data.plan)
-    } catch {
-      setPlan('Sorry, something went wrong. Please try again.')
+        body: JSON.stringify({ examDate, subjects, hoursPerDay }),
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      const data = await res.json();
+      const newPlan = data.plan || [];
+      setPlan(newPlan);
+
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        await supabase.from('study_plans').insert({
+          user_id: userData.user.id,
+          exam_date: examDate,
+          subjects,
+          hours_per_day: Number(hoursPerDay),
+          plan: newPlan,
+        });
+      }
+    } catch (e) {
+      setError('Could not generate a plan right now. Try again in a moment.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  const inputStyle = {
-    background: '#0a0e1a',
-    border: '0.5px solid #252d45',
-    borderRadius: 10,
-    padding: '10px 14px',
-    fontSize: 13, color: '#f8fafc',
-    fontFamily: 'inherit', outline: 'none',
-    width: '100%',
-  } as React.CSSProperties
+  function toggleTask(key: string) {
+    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  const totalTasks = plan.reduce((acc, d) => acc + d.tasks.length, 0);
+  const doneTasks = Object.values(checked).filter(Boolean).length;
 
   return (
     <div style={{ minHeight: '100vh' }}>
-
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px' }}>
-
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#22d3ee', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8 }}>
-            AI powered
-          </div>
-          <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 6 }}>
-            Personalised Study Plan
-          </h1>
-          <p style={{ fontSize: 13, color: '#64748b' }}>
-            Tell us your grade, subjects, and exam date — AI generates a week-by-week study plan just for you.
-          </p>
+      <div
+        style={{
+          padding: '32px 32px 0',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: 28,
+          paddingBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#6366f1',
+            letterSpacing: '.1em',
+            textTransform: 'uppercase',
+            marginBottom: 8,
+          }}
+        >
+          Planning
         </div>
+        <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
+          Study Plan
+        </h1>
+        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+          A personalized day-by-day schedule that fits your exam date
+        </p>
+      </div>
 
-        <div style={{
-          background: '#0f1422', border: '0.5px solid #252d45',
-          borderRadius: 14, padding: 24, marginBottom: 24,
-        }}>
-          {/* Grade + hours */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }} className="plan-grid">
-            <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Grade *</label>
-              <select value={grade} onChange={e => setGrade(e.target.value)} style={inputStyle}>
-                <option value="">Select grade</option>
-                {['9', '10', '11', '12'].map(g => <option key={g} value={g}>Grade {g}</option>)}
-              </select>
+      <div style={{ padding: '0 32px 32px' }}>
+        <div
+          style={{
+            background: 'rgba(15,20,34,0.5)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 16,
+            padding: 24,
+            marginBottom: 24,
+          }}
+        >
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+            <div style={{ flex: '1 1 160px' }}>
+              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Exam date</label>
+              <input
+                type="date"
+                value={examDate}
+                onChange={(e) => setExamDate(e.target.value)}
+                style={inputStyle}
+              />
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>Hours per day</label>
-              <select value={hoursPerDay} onChange={e => setHoursPerDay(e.target.value)} style={inputStyle}>
-                {['1', '2', '3', '4', '5', '6'].map(h => (
-                  <option key={h} value={h}>{h} hour{h !== '1' ? 's' : ''}</option>
-                ))}
-              </select>
+            <div style={{ flex: '2 1 260px' }}>
+              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>
+                Subjects (comma separated)
+              </label>
+              <input
+                value={subjects}
+                onChange={(e) => setSubjects(e.target.value)}
+                placeholder="Mathematics, Physics, Chemistry"
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ flex: '1 1 120px' }}>
+              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Hours / day</label>
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={hoursPerDay}
+                onChange={(e) => setHoursPerDay(e.target.value)}
+                style={inputStyle}
+              />
             </div>
           </div>
 
-          {/* Exam date */}
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>
-              Exam date <span style={{ color: '#64748b', fontWeight: 400 }}>(optional)</span>
-            </label>
-            <input type="date" value={examDate} onChange={e => setExamDate(e.target.value)}
-              style={{ ...inputStyle, colorScheme: 'dark' }} />
-          </div>
+          {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 12 }}>{error}</div>}
 
-          {/* Subject selection */}
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 10 }}>
-              Select your subjects *
-            </label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {subjects.map(s => (
-                <button key={s} onClick={() => toggleSubject(s)} style={{
-                  padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                  border: selectedSubjects.includes(s) ? '1.5px solid #6366f1' : '0.5px solid #252d45',
-                  background: selectedSubjects.includes(s) ? '#6366f115' : '#0a0e1a',
-                  color: selectedSubjects.includes(s) ? '#818cf8' : '#64748b',
-                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s',
-                }}>
-                  {selectedSubjects.includes(s) ? '✓ ' : ''}{s}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button onClick={generatePlan} disabled={loading || !grade || selectedSubjects.length === 0} style={{
-            width: '100%', padding: 12, borderRadius: 10,
-            background: '#6366f1', color: '#fff', border: 'none',
-            cursor: 'pointer', fontSize: 14, fontWeight: 600,
-            boxShadow: '0 0 24px #6366f140',
-            opacity: loading || !grade || selectedSubjects.length === 0 ? 0.6 : 1,
-            fontFamily: 'inherit',
-          }}>
-            {loading ? 'Generating your plan...' : 'Generate Study Plan'}
+          <button
+            onClick={generatePlan}
+            disabled={loading}
+            style={{
+              padding: '12px 24px',
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              border: 'none',
+              borderRadius: 10,
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: loading ? 'default' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+              transition: 'all 0.25s ease',
+            }}
+            onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+          >
+            {loading ? 'Building plan…' : '◷ Generate Study Plan'}
           </button>
         </div>
 
-        {/* Plan output */}
-        {(plan || loading) && (
-          <div style={{
-            background: '#0f1422', border: '0.5px solid #252d45',
-            borderRadius: 14, overflow: 'hidden',
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '14px 20px', borderBottom: '0.5px solid #252d45',
-              background: '#141928',
-            }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc' }}>
-                Your personalised study plan
-              </div>
-              {plan && (
-                <button onClick={() => navigator.clipboard.writeText(plan)} style={{
-                  fontSize: 12, padding: '5px 12px', borderRadius: 7,
-                  background: '#6366f115', border: '0.5px solid #6366f130',
-                  color: '#818cf8', cursor: 'pointer', fontFamily: 'inherit',
-                }}>Copy plan</button>
-              )}
-            </div>
-            <div style={{ padding: '20px 24px' }}>
-              {loading ? (
-                <div style={{ color: '#64748b', fontSize: 13 }}>Generating your personalised study plan...</div>
-              ) : (
-                <div style={{ fontSize: 13, color: '#f8fafc', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                  {plan}
-                </div>
-              )}
-            </div>
+        {loading && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                border: '3px solid rgba(99,102,241,0.2)',
+                borderTopColor: '#6366f1',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         )}
-      </div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          .plan-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+        {plan.length > 0 && !loading && (
+          <>
+            <div
+              style={{
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.3)',
+                borderRadius: 16,
+                padding: '16px 20px',
+                marginBottom: 20,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ fontSize: 13, color: '#a5b4fc' }}>Progress</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#a5b4fc' }}>
+                {doneTasks} / {totalTasks} tasks done
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gap: 14 }}>
+              {plan.map((day, di) => (
+                <div
+                  key={di}
+                  style={{
+                    background: 'rgba(15,20,34,0.5)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 16,
+                    padding: 20,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{day.day}</div>
+                    <div style={{ fontSize: 12, color: '#6366f1', fontWeight: 600 }}>{day.focus}</div>
+                  </div>
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {day.tasks.map((task, ti) => {
+                      const key = `${di}-${ti}`;
+                      return (
+                        <label
+                          key={key}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            fontSize: 13,
+                            color: checked[key] ? '#64748b' : '#cbd5e1',
+                            textDecoration: checked[key] ? 'line-through' : 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <input type="checkbox" checked={!!checked[key]} onChange={() => toggleTask(key)} />
+                          {task}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  )
+  );
 }
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 14px',
+  background: 'rgba(10,14,26,0.6)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 10,
+  color: '#e2e8f0',
+  fontSize: 14,
+  outline: 'none',
+};

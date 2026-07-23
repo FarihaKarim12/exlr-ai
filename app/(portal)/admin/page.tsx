@@ -1,249 +1,268 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+interface FeedbackItem {
+  id: string;
+  category: string;
+  message: string;
+  status: string;
+  created_at: string;
+  user_id: string;
+}
+
+interface Stats {
+  totalUsers: number;
+  totalQuizzes: number;
+  totalNotes: number;
+  openFeedback: number;
+}
+
+const STATUS_OPTIONS = ['open', 'in_progress', 'resolved'];
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState('overview')
-  const [stats, setStats] = useState({ users: 0, papers: 0, messages: 0 })
-  const [users, setUsers] = useState<any[]>([])
-  const [messages, setMessages] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalQuizzes: 0, totalNotes: 0, openFeedback: 0 });
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    const check = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth/login'; return }
+    loadDashboard();
+  }, []);
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', user.id)
-        .single()
+  async function loadDashboard() {
+    setLoading(true);
+    const [usersRes, quizzesRes, notesRes, feedbackRes] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('quiz_results').select('id', { count: 'exact', head: true }),
+      supabase.from('ai_notes').select('id', { count: 'exact', head: true }),
+      supabase.from('feedback').select('*').order('created_at', { ascending: false }),
+    ]);
 
-      if (!profile?.is_admin) { window.location.href = '/'; return }
-      setIsAdmin(true)
-      loadData()
-    }
-    check()
-  }, [])
-
-  const loadData = async () => {
-    const [{ count: userCount }, { count: paperCount }, { count: msgCount }] = await Promise.all([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_admin', false),
-      supabase.from('past_papers').select('*', { count: 'exact', head: true }),
-      supabase.from('contact_messages').select('*', { count: 'exact', head: true }),
-    ])
-    setStats({ users: userCount || 0, papers: paperCount || 0, messages: msgCount || 0 })
-
-    const { data: usersData } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('is_admin', false)
-      .order('created_at', { ascending: false })
-      .limit(20)
-    setUsers(usersData || [])
-
-    const { data: msgsData } = await supabase
-      .from('contact_messages')
-      .select('*')
-      .order('created_at', { ascending: false })
-    setMessages(msgsData || [])
-
-    setLoading(false)
+    const feedbackData = (feedbackRes.data as FeedbackItem[]) || [];
+    setStats({
+      totalUsers: usersRes.count || 0,
+      totalQuizzes: quizzesRes.count || 0,
+      totalNotes: notesRes.count || 0,
+      openFeedback: feedbackData.filter((f) => f.status === 'open').length,
+    });
+    setFeedback(feedbackData);
+    setLoading(false);
   }
 
-  const markRead = async (id: string) => {
-    await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id)
-    setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m))
+  async function updateStatus(id: string, status: string) {
+    setFeedback((prev) => prev.map((f) => (f.id === id ? { ...f, status } : f)));
+    await supabase.from('feedback').update({ status }).eq('id', id);
+    loadDashboard();
   }
 
-  const tabBtn = (tab: string, label: string) => (
-    <button onClick={() => setActiveTab(tab)} style={{
-      padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-      border: activeTab === tab ? '1.5px solid #6366f1' : '0.5px solid #252d45',
-      background: activeTab === tab ? '#6366f115' : 'transparent',
-      color: activeTab === tab ? '#818cf8' : '#64748b',
-      cursor: 'pointer', fontFamily: 'inherit',
-    }}>{label}</button>
-  )
+  function statusColor(status: string) {
+    if (status === 'resolved') return { bg: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.3)', text: '#4ade80' };
+    if (status === 'in_progress') return { bg: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.3)', text: '#a5b4fc' };
+    return { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)', text: '#f87171' };
+  }
 
-  if (!isAdmin) return null
+  const filteredFeedback = filter === 'all' ? feedback : feedback.filter((f) => f.status === filter);
+
+  const statCards = [
+    { label: 'Total Users', value: stats.totalUsers, symbol: '◍' },
+    { label: 'Quizzes Taken', value: stats.totalQuizzes, symbol: '◉' },
+    { label: 'Notes Generated', value: stats.totalNotes, symbol: '◈' },
+    { label: 'Open Feedback', value: stats.openFeedback, symbol: '◑' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh' }}>
-
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
-
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 4 }}>Admin Panel</h1>
-          <p style={{ fontSize: 13, color: '#64748b' }}>Manage your Exlr AI platform</p>
+      <div
+        style={{
+          padding: '32px 32px 0',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: 28,
+          paddingBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#6366f1',
+            letterSpacing: '.1em',
+            textTransform: 'uppercase',
+            marginBottom: 8,
+          }}
+        >
+          Admin
         </div>
+        <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
+          Dashboard
+        </h1>
+        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>Platform overview and feedback moderation</p>
+      </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-          {tabBtn('overview', 'Overview')}
-          {tabBtn('users', `Users (${stats.users})`)}
-          {tabBtn('messages', `Messages (${messages.filter(m => m.status === 'unread').length} unread)`)}
-        </div>
-
+      <div style={{ padding: '0 32px 32px' }}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#64748b' }}>Loading...</div>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                border: '3px solid rgba(99,102,241,0.2)',
+                borderTopColor: '#6366f1',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
         ) : (
           <>
-            {/* Overview */}
-            {activeTab === 'overview' && (
-              <div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 28 }}>
-                  {[
-                    { label: 'Total students', value: stats.users, color: '#6366f1' },
-                    { label: 'Past papers', value: stats.papers, color: '#22d3ee' },
-                    { label: 'Contact messages', value: stats.messages, color: '#4ade80' },
-                    { label: 'Unread messages', value: messages.filter(m => m.status === 'unread').length, color: '#f87171' },
-                  ].map(s => (
-                    <div key={s.label} style={{
-                      background: '#0f1422', border: '0.5px solid #252d45',
-                      borderRadius: 12, padding: '20px 24px',
-                    }}>
-                      <div style={{ fontSize: 32, fontWeight: 700, color: s.color, letterSpacing: '-1px', marginBottom: 4 }}>
-                        {s.value}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{
-                  background: '#0f1422', border: '0.5px solid #252d45',
-                  borderRadius: 12, padding: '20px 24px',
-                }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc', marginBottom: 16 }}>Quick links</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8 }}>
-                    {[
-                      { label: 'View past papers', href: '/past-papers', icon: '📄' },
-                      { label: 'Test AI chat', href: '/ai-chat', icon: '🧠' },
-                      { label: 'Test AI notes', href: '/ai-notes', icon: '✦' },
-                      { label: 'Test quiz', href: '/quiz', icon: '⚡' },
-                      { label: 'Test study plan', href: '/study-plan', icon: '🗺' },
-                      { label: 'View landing page', href: '/', icon: '🌐' },
-                    ].map(l => (
-                      <a key={l.label} href={l.href} style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        padding: '10px 14px', borderRadius: 10,
-                        background: '#0a0e1a', border: '0.5px solid #252d45',
-                        fontSize: 13, color: '#94a3b8',
-                      }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.borderColor = '#6366f1'
-                          e.currentTarget.style.color = '#f8fafc'
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.borderColor = '#252d45'
-                          e.currentTarget.style.color = '#94a3b8'
-                        }}
-                      >
-                        <span>{l.icon}</span>{l.label}
-                      </a>
-                    ))}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: 16,
+                marginBottom: 28,
+              }}
+            >
+              {statCards.map((card) => (
+                <div
+                  key={card.label}
+                  style={{
+                    background: 'rgba(15,20,34,0.5)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 16,
+                    padding: 20,
+                    transition: 'all 0.25s ease',
+                    cursor: 'default',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <div style={{ fontSize: 18, color: '#6366f1', marginBottom: 10 }}>{card.symbol}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-1px', marginBottom: 4 }}>
+                    {card.value}
                   </div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{card.label}</div>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
 
-            {/* Users */}
-            {activeTab === 'users' && (
-              <div style={{ background: '#0f1422', border: '0.5px solid #252d45', borderRadius: 12, overflow: 'hidden' }}>
-                <div style={{ padding: '16px 20px', borderBottom: '0.5px solid #252d45', fontSize: 13, fontWeight: 600, color: '#f8fafc' }}>
-                  Registered students
-                </div>
-                {users.length === 0 ? (
-                  <div style={{ padding: 40, textAlign: 'center', color: '#64748b', fontSize: 13 }}>No students yet</div>
-                ) : (
-                  users.map((u, i) => (
-                    <div key={u.id} style={{
-                      display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px',
-                      borderBottom: i < users.length - 1 ? '0.5px solid #252d45' : 'none',
-                    }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: '50%', background: '#6366f120',
-                        border: '0.5px solid #6366f130', display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', fontSize: 14, color: '#818cf8', fontWeight: 600, flexShrink: 0,
-                      }}>
-                        {u.full_name?.charAt(0).toUpperCase()}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, color: '#f8fafc' }}>{u.full_name}</div>
-                        <div style={{ fontSize: 12, color: '#64748b' }}>{u.email}</div>
-                      </div>
-                      <div style={{ fontSize: 12, color: '#64748b', textAlign: 'right' }}>
-                        <div>Grade {u.grade}</div>
-                        <div style={{ textTransform: 'capitalize' }}>{u.student_group}</div>
-                      </div>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>
-                        {new Date(u.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))
-                )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>Feedback Queue</h3>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {['all', ...STATUS_OPTIONS].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setFilter(s)}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      border: filter === s ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                      background: filter === s ? 'rgba(99,102,241,0.15)' : 'rgba(15,20,34,0.5)',
+                      color: filter === s ? '#a5b4fc' : '#94a3b8',
+                      transition: 'all 0.25s ease',
+                    }}
+                  >
+                    {s.replace('_', ' ')}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* Messages */}
-            {activeTab === 'messages' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {messages.length === 0 ? (
-                  <div style={{
-                    padding: 60, textAlign: 'center', color: '#64748b', fontSize: 13,
-                    background: '#0f1422', border: '0.5px solid #252d45', borderRadius: 12,
-                  }}>No messages yet</div>
-                ) : (
-                  messages.map(m => (
-                    <div key={m.id} style={{
-                      background: '#0f1422',
-                      border: `0.5px solid ${m.status === 'unread' ? '#6366f140' : '#252d45'}`,
-                      borderRadius: 12, padding: '16px 20px',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+            {filteredFeedback.length === 0 ? (
+              <div
+                style={{
+                  background: 'rgba(15,20,34,0.5)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 16,
+                  padding: 40,
+                  textAlign: 'center',
+                  color: '#64748b',
+                  fontSize: 13,
+                }}
+              >
+                Nothing here.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: 12 }}>
+                {filteredFeedback.map((item) => {
+                  const colors = statusColor(item.status);
+                  return (
+                    <div
+                      key={item.id}
+                      style={{
+                        background: 'rgba(15,20,34,0.5)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        borderRadius: 14,
+                        padding: 18,
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc', marginBottom: 2 }}>
-                            {m.name}
-                            {m.status === 'unread' && (
-                              <span style={{
-                                fontSize: 10, padding: '2px 6px', borderRadius: 4, marginLeft: 8,
-                                background: '#6366f120', color: '#818cf8', border: '0.5px solid #6366f130',
-                              }}>NEW</span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{m.email}</div>
+                          <span style={{ fontSize: 11, color: '#6366f1', fontWeight: 700, marginRight: 10 }}>
+                            {item.category}
+                          </span>
+                          <span style={{ fontSize: 11, color: '#64748b' }}>
+                            {new Date(item.created_at).toLocaleDateString()}
+                          </span>
                         </div>
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-                          <div style={{ fontSize: 11, color: '#64748b' }}>
-                            {new Date(m.created_at).toLocaleDateString()}
-                          </div>
-                          {m.status === 'unread' && (
-                            <button onClick={() => markRead(m.id)} style={{
-                              fontSize: 11, padding: '4px 10px', borderRadius: 6,
-                              background: '#4ade8015', border: '0.5px solid #4ade8030',
-                              color: '#4ade80', cursor: 'pointer', fontFamily: 'inherit',
-                            }}>Mark read</button>
-                          )}
-                        </div>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            padding: '3px 10px',
+                            borderRadius: 6,
+                            background: colors.bg,
+                            border: `1px solid ${colors.border}`,
+                            color: colors.text,
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {item.status.replace('_', ' ')}
+                        </span>
                       </div>
-                      {m.subject && (
-                        <div style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8', marginBottom: 6 }}>
-                          Subject: {m.subject}
-                        </div>
-                      )}
-                      <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>{m.message}</div>
+                      <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.6, marginBottom: 14 }}>
+                        {item.message}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {STATUS_OPTIONS.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => updateStatus(item.id, s)}
+                            disabled={item.status === s}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: 8,
+                              fontSize: 11,
+                              fontWeight: 600,
+                              textTransform: 'capitalize',
+                              cursor: item.status === s ? 'default' : 'pointer',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              background: item.status === s ? 'rgba(255,255,255,0.03)' : 'rgba(10,14,26,0.4)',
+                              color: item.status === s ? '#475569' : '#94a3b8',
+                              transition: 'all 0.25s ease',
+                            }}
+                          >
+                            {s.replace('_', ' ')}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  ))
-                )}
+                  );
+                })}
               </div>
             )}
           </>
         )}
       </div>
     </div>
-  )
+  );
 }

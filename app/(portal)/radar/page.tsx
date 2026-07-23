@@ -1,221 +1,264 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
-const subjects = [
-  'Physics', 'Chemistry', 'Biology',
-  'Mathematics', 'Computer Science',
-  'Islamiyat', 'Pakistan Studies',
-]
+interface SubjectScore {
+  subject: string;
+  score: number; // 0-100
+}
+
+const ALL_SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science'];
+
+function RadarChart({ data, size = 320 }: { data: SubjectScore[]; size?: number }) {
+  const center = size / 2;
+  const radius = size / 2 - 48;
+  const angleStep = (Math.PI * 2) / data.length;
+
+  function pointFor(index: number, value: number) {
+    const angle = angleStep * index - Math.PI / 2;
+    const r = (value / 100) * radius;
+    return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
+  }
+
+  const polygonPoints = data.map((d, i) => pointFor(i, d.score));
+  const pointsAttr = polygonPoints.map((p) => `${p.x},${p.y}`).join(' ');
+
+  const rings = [20, 40, 60, 80, 100];
+
+  return (
+    <svg width={size} height={size} style={{ display: 'block', margin: '0 auto' }}>
+      {rings.map((r) => {
+        const ringPoints = data
+          .map((_, i) => pointFor(i, r))
+          .map((p) => `${p.x},${p.y}`)
+          .join(' ');
+        return (
+          <polygon key={r} points={ringPoints} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
+        );
+      })}
+      {data.map((_, i) => {
+        const outer = pointFor(i, 100);
+        return (
+          <line
+            key={i}
+            x1={center}
+            y1={center}
+            x2={outer.x}
+            y2={outer.y}
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth={1}
+          />
+        );
+      })}
+      <polygon points={pointsAttr} fill="rgba(99,102,241,0.25)" stroke="#6366f1" strokeWidth={2} />
+      {polygonPoints.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r={4} fill="#818cf8" />
+      ))}
+      {data.map((d, i) => {
+        const labelPoint = pointFor(i, 122);
+        return (
+          <text
+            key={d.subject}
+            x={labelPoint.x}
+            y={labelPoint.y}
+            fontSize={11}
+            fill="#94a3b8"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            {d.subject}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
 
 export default function RadarPage() {
-  const [mastery, setMastery] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedSubject, setSelectedSubject] = useState('All')
-  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true);
+  const [scores, setScores] = useState<SubjectScore[]>([]);
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth/login'; return }
-      setUser(user)
+    loadData();
+  }, []);
 
-      const { data } = await supabase
-        .from('topic_mastery')
-        .select('*')
-        .eq('student_id', user.id)
-        .order('updated_at', { ascending: false })
-
-      setMastery(data || [])
-      setLoading(false)
+  async function loadData() {
+    setLoading(true);
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) {
+      setLoading(false);
+      return;
     }
-    load()
-  }, [])
+    const { data } = await supabase
+      .from('quiz_results')
+      .select('subject, score, total')
+      .eq('user_id', userData.user.id);
 
-  const filtered = selectedSubject === 'All'
-    ? mastery
-    : mastery.filter(m => m.subject === selectedSubject)
+    const bySubject: Record<string, { total: number; count: number }> = {};
+    (data || []).forEach((row: any) => {
+      const pct = row.total > 0 ? (row.score / row.total) * 100 : 0;
+      if (!bySubject[row.subject]) bySubject[row.subject] = { total: 0, count: 0 };
+      bySubject[row.subject].total += pct;
+      bySubject[row.subject].count += 1;
+    });
 
-  const getStats = () => {
-    const green = mastery.filter(m => m.status === 'green').length
-    const amber = mastery.filter(m => m.status === 'amber').length
-    const red = mastery.filter(m => m.status === 'red').length
-    return { green, amber, red, total: mastery.length }
+    const result: SubjectScore[] = ALL_SUBJECTS.map((s) => ({
+      subject: s,
+      score: bySubject[s] ? Math.round(bySubject[s].total / bySubject[s].count) : 0,
+    }));
+
+    setScores(result);
+    setLoading(false);
   }
 
-  const stats = getStats()
-
-  const statusColor = (status: string) => {
-    if (status === 'green') return { bg: '#4ade8015', border: '#4ade8040', text: '#4ade80' }
-    if (status === 'amber') return { bg: '#fbbf2415', border: '#fbbf2440', text: '#fbbf24' }
-    return { bg: '#f8717115', border: '#f8717140', text: '#f87171' }
-  }
-
-  const statusLabel = (status: string) => {
-    if (status === 'green') return 'Mastered'
-    if (status === 'amber') return 'Partial'
-    return 'Weak'
-  }
+  const strongest = [...scores].sort((a, b) => b.score - a.score)[0];
+  const weakest = [...scores].sort((a, b) => a.score - b.score)[0];
 
   return (
     <div style={{ minHeight: '100vh' }}>
-
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 24px' }}>
-
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#f87171', letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 8 }}>
-            Weakness radar
-          </div>
-          <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, letterSpacing: '-0.5px', marginBottom: 6 }}>
-            Your SLO Mastery Heatmap
-          </h1>
-          <p style={{ fontSize: 13, color: '#64748b' }}>
-            Based on your quiz results. Take more quizzes to see more topics.
-          </p>
+      <div
+        style={{
+          padding: '32px 32px 0',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          marginBottom: 28,
+          paddingBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#6366f1',
+            letterSpacing: '.1em',
+            textTransform: 'uppercase',
+            marginBottom: 8,
+          }}
+        >
+          Analytics
         </div>
-
-        {/* Summary stats */}
-        {mastery.length > 0 && (
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 10, marginBottom: 28,
-          }} className="radar-stats">
-            {[
-              { label: 'Topics tracked', value: stats.total, color: '#818cf8' },
-              { label: 'Mastered', value: stats.green, color: '#4ade80' },
-              { label: 'Partial', value: stats.amber, color: '#fbbf24' },
-              { label: 'Weak', value: stats.red, color: '#f87171' },
-            ].map(s => (
-              <div key={s.label} style={{
-                background: '#0f1422', border: '0.5px solid #252d45',
-                borderRadius: 12, padding: '16px 20px',
-              }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: s.color, letterSpacing: '-1px', marginBottom: 4 }}>
-                  {s.value}
-                </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Subject filter */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
-          {['All', ...subjects].map(s => (
-            <button key={s} onClick={() => setSelectedSubject(s)} style={{
-              fontSize: 12, fontWeight: 500, padding: '6px 14px', borderRadius: 8,
-              border: selectedSubject === s ? '1.5px solid #6366f1' : '0.5px solid #252d45',
-              background: selectedSubject === s ? '#6366f115' : '#0f1422',
-              color: selectedSubject === s ? '#818cf8' : '#64748b',
-              cursor: 'pointer', fontFamily: 'inherit',
-            }}>{s}</button>
-          ))}
-        </div>
-
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#64748b' }}>Loading...</div>
-        ) : mastery.length === 0 ? (
-          <div style={{
-            textAlign: 'center', padding: 60,
-            background: '#0f1422', border: '0.5px solid #252d45', borderRadius: 12,
-          }}>
-            <div style={{ fontSize: 40, marginBottom: 14 }}>⊙</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc', marginBottom: 8 }}>No quiz data yet</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
-              Take quizzes to see your weakness radar populate.
-            </div>
-            <a href="/quiz" style={{
-              fontSize: 13, fontWeight: 600, padding: '10px 22px',
-              borderRadius: 9, background: '#6366f1', color: '#fff',
-            }}>Take your first quiz →</a>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div style={{
-            textAlign: 'center', padding: 40,
-            background: '#0f1422', border: '0.5px solid #252d45', borderRadius: 12,
-            fontSize: 13, color: '#64748b',
-          }}>
-            No quiz data for {selectedSubject} yet. Take a {selectedSubject} quiz first.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {filtered.map(m => {
-              const c = statusColor(m.status)
-              return (
-                <div key={m.id} style={{
-                  background: '#0f1422',
-                  border: `0.5px solid ${c.border}`,
-                  borderRadius: 12, padding: '16px 20px',
-                  display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
-                }}>
-                  {/* Status indicator */}
-                  <div style={{
-                    width: 10, height: 10, borderRadius: '50%',
-                    background: c.text, flexShrink: 0,
-                    boxShadow: `0 0 8px ${c.text}`,
-                  }} />
-
-                  {/* Topic info */}
-                  <div style={{ flex: 1, minWidth: 150 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc', marginBottom: 2 }}>
-                      {m.topic}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>
-                      {m.subject} · Grade {m.grade}
-                    </div>
-                  </div>
-
-                  {/* Score bar */}
-                  <div style={{ flex: 1, minWidth: 120 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b', marginBottom: 4 }}>
-                      <span>Score</span>
-                      <span>{Math.round(m.score_percent)}%</span>
-                    </div>
-                    <div style={{ height: 6, background: '#1a2035', borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', borderRadius: 99,
-                        background: c.text,
-                        width: `${m.score_percent}%`,
-                      }} />
-                    </div>
-                  </div>
-
-                  {/* Status badge */}
-                  <div style={{
-                    fontSize: 11, fontWeight: 600, padding: '4px 10px',
-                    borderRadius: 99, background: c.bg, color: c.text,
-                    border: `0.5px solid ${c.border}`,
-                    flexShrink: 0,
-                  }}>{statusLabel(m.status)}</div>
-
-                  {/* Attempts */}
-                  <div style={{ fontSize: 12, color: '#64748b', flexShrink: 0 }}>
-                    {m.correct}/{m.attempts} correct
-                  </div>
-
-                  {/* Retake button */}
-                  <a href={`/quiz?subject=${encodeURIComponent(m.subject)}&grade=${m.grade}&topic=${encodeURIComponent(m.topic)}`}
-                    style={{
-                      fontSize: 12, fontWeight: 500, padding: '6px 12px',
-                      borderRadius: 8, background: '#6366f115',
-                      border: '0.5px solid #6366f130', color: '#818cf8',
-                      flexShrink: 0,
-                    }}>
-                    Retake →
-                  </a>
-                </div>
-              )
-            })}
-          </div>
-        )}
+        <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
+          Performance Radar
+        </h1>
+        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+          See how you're performing across subjects, based on quiz history
+        </p>
       </div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          .radar-stats { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-      `}</style>
+      <div style={{ padding: '0 32px 32px' }}>
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                border: '3px solid rgba(99,102,241,0.2)',
+                borderTopColor: '#6366f1',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        ) : scores.every((s) => s.score === 0) ? (
+          <div
+            style={{
+              background: 'rgba(15,20,34,0.5)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 16,
+              padding: 40,
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: 13,
+            }}
+          >
+            No quiz data yet — take a few quizzes to see your performance radar.
+          </div>
+        ) : (
+          <>
+            <div
+              style={{
+                background: 'rgba(15,20,34,0.5)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 16,
+                padding: 32,
+                marginBottom: 24,
+              }}
+            >
+              <RadarChart data={scores} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div
+                style={{
+                  background: 'rgba(15,20,34,0.5)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(74,222,128,0.15)',
+                  borderRadius: 16,
+                  padding: 20,
+                }}
+              >
+                <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 700, letterSpacing: '.05em', marginBottom: 6 }}>
+                  ◑ STRONGEST
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>{strongest?.subject}</div>
+                <div style={{ fontSize: 13, color: '#64748b' }}>{strongest?.score}% average</div>
+              </div>
+              <div
+                style={{
+                  background: 'rgba(15,20,34,0.5)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(248,113,113,0.15)',
+                  borderRadius: 16,
+                  padding: 20,
+                }}
+              >
+                <div style={{ fontSize: 11, color: '#f87171', fontWeight: 700, letterSpacing: '.05em', marginBottom: 6 }}>
+                  ◒ NEEDS FOCUS
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>{weakest?.subject}</div>
+                <div style={{ fontSize: 13, color: '#64748b' }}>{weakest?.score}% average</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: 10 }}>
+              {scores
+                .sort((a, b) => b.score - a.score)
+                .map((s) => (
+                  <div
+                    key={s.subject}
+                    style={{
+                      background: 'rgba(15,20,34,0.5)',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: 12,
+                      padding: '14px 18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                    }}
+                  >
+                    <div style={{ width: 130, fontSize: 13, fontWeight: 600 }}>{s.subject}</div>
+                    <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          width: `${s.score}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #6366f1, #4f46e5)',
+                          borderRadius: 3,
+                          transition: 'width 0.4s ease',
+                        }}
+                      />
+                    </div>
+                    <div style={{ width: 40, fontSize: 13, color: '#94a3b8', textAlign: 'right' }}>{s.score}%</div>
+                  </div>
+                ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  )
+  );
 }

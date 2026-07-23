@@ -1,6 +1,20 @@
+'use client';
+
+import { useState } from 'react'
 import { ArrowRight, Rocket } from 'lucide-react'
 
+const FEATURES = [
+  { glyph: '◈', title: 'AI Doubt Solver', sub: '24/7 instant help', color: '#22d3ee' },
+  { glyph: '✦', title: 'AI Notes', sub: 'On demand', color: '#818cf8' },
+  { glyph: '◧', title: 'Past Papers', sub: '2012–2025', color: '#6366f1' },
+  { glyph: '◉', title: 'MCQ Quiz', sub: 'AI generated', color: '#4ade80' },
+  { glyph: '◎', title: 'Weakness Radar', sub: 'Auto-detected', color: '#f87171' },
+  { glyph: '◷', title: 'Study Plan', sub: 'Personalised', color: '#f59e0b' },
+]
+
 export default function Hero() {
+  const [hovered, setHovered] = useState<string | null>(null)
+
   return (
     <section style={{ background: 'var(--bg)', padding: '80px 24px 60px', overflow: 'hidden' }}>
       <div style={{
@@ -98,17 +112,25 @@ export default function Hero() {
           }} />
 
           <div style={{
-            background: '#0f1422',
+            background: 'rgba(15,20,34,0.6)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
             border: '0.5px solid #252d45',
-            borderRadius: 16, padding: 28,
+            borderRadius: 18, padding: 28,
             position: 'relative', zIndex: 1,
           }}>
-            <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc', marginBottom: 4 }}>
+            <div style={{ textAlign: 'center', marginBottom: 22 }}>
+              <div style={{
+                fontSize: 15, fontWeight: 700, color: '#f8fafc', marginBottom: 6,
+                letterSpacing: '-0.3px',
+              }}>
                 Everything you need to ace AKUEB
               </div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>
-                All tools. All subjects. Completely free.
+              <div style={{
+                fontSize: 11, color: '#64748b', fontWeight: 500,
+                textTransform: 'uppercase', letterSpacing: '.08em',
+              }}>
+                All tools · All subjects · Completely free
               </div>
             </div>
 
@@ -116,29 +138,55 @@ export default function Hero() {
               display: 'grid', gridTemplateColumns: '1fr 1fr',
               gap: 10,
             }}>
-              {[
-                { icon: '🧠', title: 'AI Doubt Solver', sub: '24/7 instant help', color: '#22d3ee' },
-                { icon: '✦', title: 'AI Notes', sub: 'On demand', color: '#818cf8' },
-                { icon: '📄', title: 'Past Papers', sub: '2012–2025', color: '#6366f1' },
-                { icon: '⚡', title: 'MCQ Quiz', sub: 'AI generated', color: '#4ade80' },
-                { icon: '⊙', title: 'Weakness Radar', sub: 'Auto-detected', color: '#f87171' },
-                { icon: '🗺', title: 'Study Plan', sub: 'Personalised', color: '#f59e0b' },
-              ].map(f => (
-                <div key={f.title} style={{
-                  background: '#141928',
-                  border: '0.5px solid #252d45',
-                  borderRadius: 12, padding: '14px 16px',
-                }}>
-                  <div style={{ fontSize: 18, marginBottom: 8 }}>{f.icon}</div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#f8fafc', marginBottom: 2, lineHeight: 1.3 }}>
-                    {f.title}
+              {FEATURES.map(f => {
+                const isHovered = hovered === f.title
+                return (
+                  <div
+                    key={f.title}
+                    onMouseEnter={() => setHovered(f.title)}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{
+                      background: isHovered ? '#171d31' : '#141928',
+                      border: isHovered ? `0.5px solid ${f.color}66` : '0.5px solid #252d45',
+                      borderRadius: 12, padding: '15px 16px',
+                      cursor: 'default',
+                      transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
+                      boxShadow: isHovered ? `0 10px 24px -8px ${f.color}55` : 'none',
+                      transition: 'all 0.25s ease',
+                    }}
+                  >
+                    <div style={{
+                      width: 26, height: 26, borderRadius: 7,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 13, fontWeight: 700, color: f.color,
+                      background: `${f.color}18`,
+                      marginBottom: 10,
+                      transition: 'transform 0.25s ease',
+                      transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+                    }}>
+                      {f.glyph}
+                    </div>
+                    <div style={{
+                      fontSize: 12.5, fontWeight: 600, color: '#f1f5f9', marginBottom: 3,
+                      lineHeight: 1.3, letterSpacing: '-0.1px',
+                    }}>
+                      {f.title}
+                    </div>
+                    <div style={{
+                      fontSize: 11, color: '#64748b', fontWeight: 500,
+                    }}>{f.sub}</div>
+                    <div style={{ height: 3, background: '#252d45', borderRadius: 99, marginTop: 10, overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%',
+                        width: isHovered ? '85%' : '70%',
+                        background: f.color,
+                        borderRadius: 99,
+                        transition: 'width 0.4s ease',
+                      }} />
+                    </div>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{f.sub}</div>
-                  <div style={{ height: 3, background: '#252d45', borderRadius: 99, marginTop: 8, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: '70%', background: f.color, borderRadius: 99 }} />
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
