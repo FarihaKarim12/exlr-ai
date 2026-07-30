@@ -124,7 +124,7 @@ export default function Hero() {
                 }}>{l}</div>
               ))}
             </div>
-            <span>Join thousands of AKUEB students</span>
+            <h3>Join thousands of AKUEB students</h3>
           </div>
         </div>
 
@@ -145,14 +145,7 @@ export default function Hero() {
             position: 'relative', zIndex: 1,
             padding: '20px 8px',
           }}>
-            <div style={{ textAlign: 'center', marginBottom: 36 }}>
-              <div style={{
-                fontSize: 11, color: '#64748b', fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '.16em',
-              }}>
-                Exlr AI at a glance
-              </div>
-            </div>
+            
 
             <div style={{
               display: 'grid', gridTemplateColumns: '1fr 1fr',
