@@ -53,14 +53,14 @@ export default function Hero() {
             <span style={{ color: '#f8fafc' }}>platform</span>
           </h1>
 
-          <p style={{
+          <h2 style={{
             fontSize: 15, color: '#94a3b8', lineHeight: 1.75,
             marginBottom: 32, maxWidth: 460,
           }}>
             SLO-based notes, past papers 2012–2025, AI doubt solver,
             personalised study plans, and exam simulation —
             all free, all in one place.
-          </p>
+          </h2>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 36 }}>
             <a
@@ -142,82 +142,61 @@ export default function Hero() {
           }} />
 
           <div style={{
-            background: 'rgba(15,20,34,0.6)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '0.5px solid #252d45',
-            borderRadius: 18, padding: 28,
             position: 'relative', zIndex: 1,
+            padding: '20px 8px',
           }}>
-            <div style={{ textAlign: 'center', marginBottom: 22 }}>
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
               <div style={{
-                fontSize: 15, fontWeight: 700, color: '#f8fafc', marginBottom: 6,
-                letterSpacing: '-0.3px',
+                fontSize: 11, color: '#64748b', fontWeight: 600,
+                textTransform: 'uppercase', letterSpacing: '.16em',
               }}>
                 Exlr AI at a glance
-              </div>
-              <div style={{
-                fontSize: 11, color: '#64748b', fontWeight: 500,
-                textTransform: 'uppercase', letterSpacing: '.08em',
-              }}>
-                All tools · All subjects · Completely free
               </div>
             </div>
 
             <div style={{
               display: 'grid', gridTemplateColumns: '1fr 1fr',
-              gap: 10,
             }}>
-              {STATS.map(s => {
+              {STATS.map((s, i) => {
                 const isHovered = hovered === s.label
+                const isRightCol = i % 2 === 1
+                const isBottomRow = i >= 2
                 return (
                   <div
                     key={s.label}
                     onMouseEnter={() => setHovered(s.label)}
                     onMouseLeave={() => setHovered(null)}
                     style={{
-                      background: isHovered ? '#171d31' : '#141928',
-                      border: isHovered ? `0.5px solid ${s.color}66` : '0.5px solid #252d45',
-                      borderRadius: 12, padding: '15px 16px',
+                      textAlign: 'center',
+                      padding: '26px 16px',
                       cursor: 'default',
-                      transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
-                      boxShadow: isHovered ? `0 10px 24px -8px ${s.color}55` : 'none',
-                      transition: 'all 0.25s ease',
+                      borderRight: !isRightCol ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+                      borderBottom: !isBottomRow ? '0.5px solid rgba(255,255,255,0.08)' : 'none',
+                      transition: 'transform 0.3s ease',
+                      transform: isHovered ? 'scale(1.05)' : 'scale(1)',
                     }}
                   >
                     <div style={{
-                      width: 26, height: 26, borderRadius: 7,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, fontWeight: 700, color: s.color,
-                      background: `${s.color}18`,
+                      fontSize: 'clamp(34px, 4.2vw, 50px)',
+                      fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1,
                       marginBottom: 10,
-                      transition: 'transform 0.25s ease',
-                      transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+                      transition: 'text-shadow 0.3s ease',
                     }}>
-                      {s.glyph}
-                    </div>
-                    <div style={{
-                      fontSize: 22, fontWeight: 700, letterSpacing: '-1px',
-                      lineHeight: 1, marginBottom: 6,
-                    }}>
-                      <span style={{ color: '#f8fafc' }}>{s.number}</span>
+                      <span style={{
+                        color: '#f8fafc',
+                        textShadow: isHovered ? '0 0 30px rgba(248,250,252,0.35)' : 'none',
+                      }}>{s.number}</span>
                       {s.suffix && <span style={{
                         color: s.color,
-                        textShadow: `0 0 16px ${s.color}80`,
+                        textShadow: isHovered ? `0 0 36px ${s.color}` : `0 0 18px ${s.color}90`,
+                        transition: 'text-shadow 0.3s ease',
                       }}>{s.suffix}</span>}
                     </div>
                     <div style={{
-                      fontSize: 11.5, color: '#64748b', fontWeight: 500, lineHeight: 1.35,
+                      fontSize: 11.5, color: isHovered ? '#cbd5e1' : '#64748b',
+                      fontWeight: 500, letterSpacing: '0.02em', lineHeight: 1.4,
+                      transition: 'color 0.3s ease',
                     }}>{s.label}</div>
-                    <div style={{ height: 3, background: '#252d45', borderRadius: 99, marginTop: 10, overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%',
-                        width: isHovered ? '100%' : '55%',
-                        background: s.color,
-                        borderRadius: 99,
-                        transition: 'width 0.4s ease',
-                      }} />
-                    </div>
                   </div>
                 )
               })}
