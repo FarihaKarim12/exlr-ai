@@ -3,13 +3,11 @@
 import { useState } from 'react'
 import { ArrowRight, Rocket } from 'lucide-react'
 
-const FEATURES = [
-  { glyph: '◈', title: 'AI Doubt Solver', sub: '24/7 instant help', color: '#22d3ee' },
-  { glyph: '✦', title: 'AI Notes', sub: 'On demand', color: '#818cf8' },
-  { glyph: '◧', title: 'Past Papers', sub: '2012–2025', color: '#6366f1' },
-  { glyph: '◉', title: 'MCQ Quiz', sub: 'AI generated', color: '#4ade80' },
-  { glyph: '◎', title: 'Weakness Radar', sub: 'Auto-detected', color: '#f87171' },
-  { glyph: '◷', title: 'Study Plan', sub: 'Personalised', color: '#f59e0b' },
+const STATS = [
+  { number: '7', label: 'Core subjects covered', glyph: '◧', color: '#6366f1' },
+  { number: '13', suffix: 'yrs', label: 'Past papers archive', glyph: '◈', color: '#22d3ee' },
+  { number: '4', suffix: ' AI', label: 'Powered modules', glyph: '✦', color: '#818cf8' },
+  { number: '100', suffix: '%', label: 'Free to start', glyph: '◎', color: '#4ade80' },
 ]
 
 export default function Hero() {
@@ -130,7 +128,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right — feature highlights card */}
+        {/* Right — stats grid, replaces the old feature-highlights card */}
         <div style={{ position: 'relative' }} className="hero-visual">
 
           {/* Glow behind */}
@@ -156,7 +154,7 @@ export default function Hero() {
                 fontSize: 15, fontWeight: 700, color: '#f8fafc', marginBottom: 6,
                 letterSpacing: '-0.3px',
               }}>
-                Everything you need to ace AKUEB
+                Exlr AI at a glance
               </div>
               <div style={{
                 fontSize: 11, color: '#64748b', fontWeight: 500,
@@ -170,48 +168,52 @@ export default function Hero() {
               display: 'grid', gridTemplateColumns: '1fr 1fr',
               gap: 10,
             }}>
-              {FEATURES.map(f => {
-                const isHovered = hovered === f.title
+              {STATS.map(s => {
+                const isHovered = hovered === s.label
                 return (
                   <div
-                    key={f.title}
-                    onMouseEnter={() => setHovered(f.title)}
+                    key={s.label}
+                    onMouseEnter={() => setHovered(s.label)}
                     onMouseLeave={() => setHovered(null)}
                     style={{
                       background: isHovered ? '#171d31' : '#141928',
-                      border: isHovered ? `0.5px solid ${f.color}66` : '0.5px solid #252d45',
+                      border: isHovered ? `0.5px solid ${s.color}66` : '0.5px solid #252d45',
                       borderRadius: 12, padding: '15px 16px',
                       cursor: 'default',
                       transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
-                      boxShadow: isHovered ? `0 10px 24px -8px ${f.color}55` : 'none',
+                      boxShadow: isHovered ? `0 10px 24px -8px ${s.color}55` : 'none',
                       transition: 'all 0.25s ease',
                     }}
                   >
                     <div style={{
                       width: 26, height: 26, borderRadius: 7,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, fontWeight: 700, color: f.color,
-                      background: `${f.color}18`,
+                      fontSize: 13, fontWeight: 700, color: s.color,
+                      background: `${s.color}18`,
                       marginBottom: 10,
                       transition: 'transform 0.25s ease',
                       transform: isHovered ? 'scale(1.08)' : 'scale(1)',
                     }}>
-                      {f.glyph}
+                      {s.glyph}
                     </div>
                     <div style={{
-                      fontSize: 12.5, fontWeight: 600, color: '#f1f5f9', marginBottom: 3,
-                      lineHeight: 1.3, letterSpacing: '-0.1px',
+                      fontSize: 22, fontWeight: 700, letterSpacing: '-1px',
+                      lineHeight: 1, marginBottom: 6,
                     }}>
-                      {f.title}
+                      <span style={{ color: '#f8fafc' }}>{s.number}</span>
+                      {s.suffix && <span style={{
+                        color: s.color,
+                        textShadow: `0 0 16px ${s.color}80`,
+                      }}>{s.suffix}</span>}
                     </div>
                     <div style={{
-                      fontSize: 11, color: '#64748b', fontWeight: 500,
-                    }}>{f.sub}</div>
+                      fontSize: 11.5, color: '#64748b', fontWeight: 500, lineHeight: 1.35,
+                    }}>{s.label}</div>
                     <div style={{ height: 3, background: '#252d45', borderRadius: 99, marginTop: 10, overflow: 'hidden' }}>
                       <div style={{
                         height: '100%',
-                        width: isHovered ? '85%' : '70%',
-                        background: f.color,
+                        width: isHovered ? '100%' : '55%',
+                        background: s.color,
                         borderRadius: 99,
                         transition: 'width 0.4s ease',
                       }} />
