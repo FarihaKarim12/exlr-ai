@@ -65,19 +65,51 @@ export default function Hero() {
           </p>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 36 }}>
-            <a href="/auth/signup" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              fontSize: 14, fontWeight: 600, padding: '12px 26px',
-              borderRadius: 10, background: '#6366f1', color: '#fff',
-              boxShadow: '0 0 24px #6366f150',
-            }}>
+            <a
+              href="/auth/signup"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontSize: 14, fontWeight: 600, padding: '12px 26px',
+                borderRadius: 10, background: '#6366f1', color: '#fff',
+                boxShadow: '0 0 24px #6366f150',
+                textDecoration: 'none',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 6px 32px #6366f180'
+                e.currentTarget.style.background = '#4f46e5'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 0 24px #6366f150'
+                e.currentTarget.style.background = '#6366f1'
+              }}
+            >
               <Rocket size={16} /> Start learning free
             </a>
-            <a href="past-papers" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              fontSize: 14, padding: '12px 26px', borderRadius: 10,
-              border: '0.5px solid #252d45', color: '#94a3b8',
-            }}>
+            <a
+              href="past-papers"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontSize: 14, padding: '12px 26px', borderRadius: 10,
+                border: '0.5px solid #252d45', color: '#94a3b8',
+                textDecoration: 'none',
+                transition: 'transform 0.25s ease, border-color 0.25s ease, color 0.25s ease, background 0.25s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.borderColor = '#6366f180'
+                e.currentTarget.style.color = '#f8fafc'
+                e.currentTarget.style.background = 'rgba(99,102,241,0.06)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.borderColor = '#252d45'
+                e.currentTarget.style.color = '#94a3b8'
+                e.currentTarget.style.background = 'transparent'
+              }}
+            >
               Browse past papers <ArrowRight size={16} />
             </a>
           </div>
