@@ -16,6 +16,9 @@ export default function Stats() {
     <div style={{
       padding: '56px 24px',
       background: 'var(--bg)',
+      borderTop: '1px solid rgba(255,255,255,0.05)',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      overflow: 'hidden',
     }}>
       <div style={{
         maxWidth: 1200, margin: '0 auto',
