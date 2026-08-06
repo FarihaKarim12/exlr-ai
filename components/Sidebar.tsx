@@ -144,15 +144,15 @@ export default function Sidebar() {
             width: 32, height: 32, borderRadius: '50%',
             background: 'linear-gradient(135deg, #6366f1, #818cf8)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#fff',
+            fontSize: 14, fontWeight: 700, color: '#fff',
             marginBottom: 8,
           }}>
             {profile.full_name?.charAt(0).toUpperCase()}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#f8fafc', marginBottom: 3, letterSpacing: '-0.2px' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#f8fafc', marginBottom: 3, letterSpacing: '-0.2px' }}>
             {profile.full_name?.split(' ')[0]}
           </div>
-          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400 }}>
+          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400 }}>
             Grade {profile.grade} · {profile.student_group?.charAt(0).toUpperCase() + profile.student_group?.slice(1)}
           </div>
         </div>
