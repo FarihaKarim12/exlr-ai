@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Clock3, Mail, MapPin } from 'lucide-react'
 import emailjs from '@emailjs/browser'
 
 const SERVICE_ID = 'service_2f9mvom'
@@ -89,9 +90,9 @@ export default function Contact() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { icon: '◈', label: 'Email', value: 'exlrai.official@gmail.com', color: '#6366f1' },
-                { icon: '◉', label: 'Location', value: 'Karachi, Pakistan', color: '#22d3ee' },
-                { icon: '◎', label: 'Response time', value: 'Within 24 hours', color: '#4ade80' },
+                { label: 'Email', value: 'exlrai.official@gmail.com', color: '#6366f1' },
+                { label: 'Location', value: 'Karachi, Pakistan', color: '#22d3ee' },
+                { label: 'Response time', value: 'Within 24 hours', color: '#4ade80' },
               ].map(item => (
                 <div key={item.label} style={{
                   display: 'flex', alignItems: 'center', gap: 16,
@@ -110,15 +111,9 @@ export default function Contact() {
                     e.currentTarget.style.transform = 'translateX(0)'
                   }}
                 >
-                  <div style={{
-                    width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                    background: `${item.color}12`,
-                    border: `1px solid ${item.color}25`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, color: item.color,
-                  }}>{item.icon}</div>
+                  
                   <div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginBottom: 3, fontWeight: 500 }}>{item.label}</div>
+                    <div style={{ fontSize: 13, color: '#64748b', marginBottom: 3, fontWeight: 500 }}>{item.label}</div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc' }}>{item.value}</div>
                   </div>
                 </div>

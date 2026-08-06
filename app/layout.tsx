@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: 'Exlr AI — AKUEB Learning Platform',
   description: 'Pakistan ka smartest AKUEB prep platform. SLO-based notes, past papers 2012–2025, AI doubt solver, and personalised study plans. Free for every student.',
   keywords: ['AKUEB', 'SSC', 'HSSC', 'past papers', 'notes', 'Pakistan', 'exam preparation'],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({

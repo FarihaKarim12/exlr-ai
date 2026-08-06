@@ -186,7 +186,7 @@ export default function Hero() {
                       }}>{s.suffix}</span>}
                     </div>
                     <div style={{
-                      fontSize: 11.5, color: isHovered ? '#cbd5e1' : '#64748b',
+                      fontSize: 12.5, color: isHovered ? '#cbd5e1' : '#64748b',
                       fontWeight: 500, letterSpacing: '0.02em', lineHeight: 1.4,
                       transition: 'color 0.3s ease',
                     }}>{s.label}</div>
