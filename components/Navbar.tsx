@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 
 const links = [
+  { label: 'Home', href: '#hero' },
   { label: 'Subjects', href: '#subjects' },
-  { label: 'Past Papers', href: 'past-papers' },
   { label: 'Features', href: '#features' },
   { label: 'How it works', href: '#how' },
   { label: 'Contact', href: '#contact' },
-  { label: 'Feedback', href: '/feedback' },
 ]
 
 export default function Navbar() {
