@@ -82,7 +82,7 @@ export default function Contact() {
               <span style={{ color: '#818cf8', textShadow: '0 0 40px rgba(99,102,241,0.5)' }}>question</span>
               <br />or suggestion?
             </h2>
-            <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.75, marginBottom: 36, fontWeight: 400 }}>
+            <p style={{ fontSize: 16, color: '#94a3b8', lineHeight: 1.75, marginBottom: 36, fontWeight: 400 }}>
               Drop a message and we'll get back to you as soon as possible.
               We read every message personally.
             </p>

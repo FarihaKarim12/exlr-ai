@@ -80,20 +80,13 @@ export default function Subjects() {
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              <div style={{
-                width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                background: `${s.color}12`,
-                border: `1px solid ${s.color}25`,
-                display: 'flex', alignItems: 'center',
-                justifyContent: 'center', fontSize: 20,
-                color: s.color,
-              }}>{s.icon}</div>
+              
               <div>
                 <div style={{
-                  fontSize: 14, fontWeight: 700,
+                  fontSize: 16, fontWeight: 700,
                   color: '#f8fafc', letterSpacing: '-0.3px',
                 }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 3, fontWeight: 400 }}>{s.group}</div>
+                <div style={{ fontSize: 14, color: '#64748b', marginTop: 3, fontWeight: 400 }}>{s.group}</div>
               </div>
             </div>
           ))}

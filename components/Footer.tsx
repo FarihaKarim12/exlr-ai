@@ -21,7 +21,6 @@ const navLinks = [
   { label: 'Past Papers', href: '#papers' },
   { label: 'Features', href: '#features' },
   { label: 'How it works', href: '#how' },
-  { label: 'Feedback', href: '/feedback' },
   { label: 'Contact', href: '#contact' },
 ]
 
@@ -78,7 +77,7 @@ export default function Footer() {
               <span style={{ color: '#f8fafc' }}>Exlr</span>
               <span style={{ color: '#818cf8' }}>AI</span>
             </a>
-            <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.75, maxWidth: 260, fontWeight: 400 }}>
+            <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.75, maxWidth: 260, fontWeight: 400 }}>
               Pakistan's smartest AKUEB prep platform. Free for every SSC and HSSC student.
             </p>
           </div>
@@ -96,7 +95,7 @@ export default function Footer() {
                   key={l.label}
                   href={l.href}
                   style={{
-                    fontSize: 13, color: '#64748b', fontWeight: 500,
+                    fontSize: 14, color: '#64748b', fontWeight: 500,
                     padding: '5px 0',
                     textDecoration: 'none',
                     transition: 'color 0.2s ease, transform 0.2s ease',
@@ -128,7 +127,7 @@ export default function Footer() {
                   key={s}
                   href="#subjects"
                   style={{
-                    fontSize: 13, color: '#64748b', fontWeight: 500,
+                    fontSize: 14, color: '#64748b', fontWeight: 500,
                     padding: '5px 0',
                     textDecoration: 'none',
                     transition: 'color 0.2s ease, transform 0.2s ease',
@@ -153,14 +152,14 @@ export default function Footer() {
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
         }}>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+          <div style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>
             © 2026 Exlr AI · All rights reserved.
           </div>
 
           {/* Dev links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{
-              fontSize: 11, color: '#475569', fontWeight: 600,
+              fontSize: 13, color: '#475569', fontWeight: 600,
               textTransform: 'uppercase', letterSpacing: '.08em',
             }}>Developer</span>
 
@@ -168,7 +167,7 @@ export default function Footer() {
               target="_blank" rel="noopener noreferrer"
               style={{
                 display: 'flex', alignItems: 'center', gap: 7,
-                fontSize: 12, fontWeight: 600,
+                fontSize: 14, fontWeight: 600,
                 padding: '8px 14px', borderRadius: 9,
                 background: 'rgba(20,25,40,0.7)',
                 backdropFilter: 'blur(8px)',
@@ -190,14 +189,14 @@ export default function Footer() {
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              <GithubIcon size={14} /> GitHub
+              <GithubIcon size={16} /> GitHub
             </a>
 
             <a href="https://www.linkedin.com/in/fariha-karim-387090296/"
               target="_blank" rel="noopener noreferrer"
               style={{
                 display: 'flex', alignItems: 'center', gap: 7,
-                fontSize: 12, fontWeight: 600,
+                fontSize: 14, fontWeight: 600,
                 padding: '8px 14px', borderRadius: 9,
                 background: 'rgba(20,25,40,0.7)',
                 backdropFilter: 'blur(8px)',
@@ -219,7 +218,7 @@ export default function Footer() {
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              <LinkedinIcon size={14} /> LinkedIn
+              <LinkedinIcon size={16} /> LinkedIn
             </a>
           </div>
         </div>

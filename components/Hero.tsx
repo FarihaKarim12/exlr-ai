@@ -14,7 +14,7 @@ export default function Hero() {
   const [hovered, setHovered] = useState<string | null>(null)
 
   return (
-    <section style={{ background: 'var(--bg)', padding: '80px 24px 60px', overflow: 'hidden' }}>
+    <section id="hero" style={{ background: 'var(--bg)', padding: '80px 24px 60px', overflow: 'hidden', scrollMarginTop: 90 }}>
       <div style={{
         maxWidth: 1200, margin: '0 auto',
         display: 'grid', gridTemplateColumns: '1fr 1fr',
@@ -54,7 +54,7 @@ export default function Hero() {
           </h1>
 
           <h2 style={{
-            fontSize: 15, color: '#94a3b8', lineHeight: 1.75,
+            fontSize: 16, color: '#94a3b8', lineHeight: 1.75,
             marginBottom: 32, maxWidth: 460,
           }}>
             SLO-based notes, past papers 2012–2025, AI doubt solver,
@@ -112,7 +112,7 @@ export default function Hero() {
             </a>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#64748b' }}>
             <div style={{ display: 'flex' }}>
               {['A', 'S', 'R', 'Z', 'M'].map((l, i) => (
                 <div key={l} style={{

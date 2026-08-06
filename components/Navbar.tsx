@@ -23,6 +23,22 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith('#')) return
+
+    event.preventDefault()
+    const targetId = href.slice(1)
+    const target = document.getElementById(targetId)
+
+    if (target) {
+      const offset = 84
+      const top = target.getBoundingClientRect().top + window.scrollY - offset
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
+
+    setOpen(false)
+  }
+
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 50,
@@ -65,11 +81,12 @@ export default function Navbar() {
             <a
               key={l.label}
               href={l.href}
+              onClick={(event) => handleNavClick(event, l.href)}
               onMouseEnter={() => setHovered(l.label)}
               onMouseLeave={() => setHovered(null)}
               style={{
                 position: 'relative',
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: 500,
                 color: hovered === l.label ? '#f8fafc' : '#94a3b8',
                 padding: '8px 12px',
@@ -98,7 +115,7 @@ export default function Navbar() {
             href="/auth/login"
             className="show-desktop"
             style={{
-              fontSize: 13, color: '#94a3b8', padding: '7px 14px',
+              fontSize: 14, color: '#94a3b8', padding: '7px 14px',
               borderRadius: 8, border: '0.5px solid #252d45',
               textDecoration: 'none',
               transition: 'all 0.2s ease',
@@ -119,7 +136,7 @@ export default function Navbar() {
           <a
             href="/auth/signup"
             style={{
-              fontSize: 13, fontWeight: 600, padding: '7px 16px',
+              fontSize: 14, fontWeight: 600, padding: '7px 16px',
               borderRadius: 8, background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
               color: '#fff', textDecoration: 'none',
               boxShadow: '0 2px 12px rgba(99,102,241,0.35)',
@@ -152,7 +169,7 @@ export default function Navbar() {
           padding: '12px 24px 20px',
         }}>
           {links.map(l => (
-            <a key={l.label} href={l.href} onClick={() => setOpen(false)} style={{
+            <a key={l.label} href={l.href} onClick={(event) => handleNavClick(event, l.href)} style={{
               display: 'block', padding: '12px 4px', fontSize: 14,
               color: '#94a3b8', borderBottom: '0.5px solid #1e2640',
               transition: 'color 0.2s ease, padding-left 0.2s ease',

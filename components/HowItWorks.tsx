@@ -64,7 +64,7 @@ export default function HowItWorks() {
             {' '}to{' '}
             <span style={{ color: '#4ade80', textShadow: '0 0 40px rgba(74,222,128,0.4)' }}>A*</span>
           </h2>
-          <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: 1.75 }}>
+          <p style={{ fontSize: 16, color: '#94a3b8', lineHeight: 1.75 }}>
             A smart connected system where every action improves your next step.
           </p>
         </div>
@@ -107,19 +107,19 @@ export default function HowItWorks() {
               }}>{s.n}</div>
 
               <div style={{
-                fontSize: 11, fontWeight: 700, color: s.color,
+                fontSize: 13, fontWeight: 700, color: s.color,
                 letterSpacing: '.1em', marginBottom: 16,
                 textTransform: 'uppercase',
               }}>STEP {s.n}</div>
 
               <div style={{
-                fontSize: 15, fontWeight: 700,
+                fontSize: 16, fontWeight: 700,
                 color: '#f8fafc', marginBottom: 10,
                 letterSpacing: '-0.3px', lineHeight: 1.3,
               }}>
                 {s.title}
               </div>
-              <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.65, fontWeight: 400 }}>
+              <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.65, fontWeight: 400 }}>
                 {s.desc}
               </div>
 
