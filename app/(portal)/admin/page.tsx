@@ -65,13 +65,6 @@ export default function AdminPage() {
 
   const filteredFeedback = filter === 'all' ? feedback : feedback.filter((f) => f.status === filter);
 
-  const statCards = [
-    { label: 'Total Users', value: stats.totalUsers, symbol: '◍' },
-    { label: 'Quizzes Taken', value: stats.totalQuizzes, symbol: '◉' },
-    { label: 'Notes Generated', value: stats.totalNotes, symbol: '◈' },
-    { label: 'Open Feedback', value: stats.openFeedback, symbol: '◑' },
-  ];
-
   return (
     <div style={{ minHeight: '100vh' }}>
       <div
@@ -97,7 +90,7 @@ export default function AdminPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           Dashboard
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>Platform overview and feedback moderation</p>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>Platform overview and feedback moderation</p>
       </div>
 
       <div style={{ padding: '0 32px 32px' }}>
@@ -125,32 +118,10 @@ export default function AdminPage() {
                 marginBottom: 28,
               }}
             >
-              {statCards.map((card) => (
-                <div
-                  key={card.label}
-                  style={{
-                    background: 'rgba(15,20,34,0.5)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: 16,
-                    padding: 20,
-                    transition: 'all 0.25s ease',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-                >
-                  <div style={{ fontSize: 18, color: '#6366f1', marginBottom: 10 }}>{card.symbol}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-1px', marginBottom: 4 }}>
-                    {card.value}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{card.label}</div>
-                </div>
-              ))}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>Feedback Queue</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: '#94a3b8' }}>Feedback Queue</h3>
               <div style={{ display: 'flex', gap: 8 }}>
                 {['all', ...STATUS_OPTIONS].map((s) => (
                   <button
@@ -185,7 +156,7 @@ export default function AdminPage() {
                   padding: 40,
                   textAlign: 'center',
                   color: '#64748b',
-                  fontSize: 13,
+                  fontSize: 14,
                 }}
               >
                 Nothing here.

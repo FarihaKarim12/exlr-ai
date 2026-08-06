@@ -140,7 +140,7 @@ export default function RadarPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           Performance Radar
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
           See how you're performing across subjects, based on quiz history
         </p>
       </div>
@@ -170,7 +170,7 @@ export default function RadarPage() {
               padding: 40,
               textAlign: 'center',
               color: '#64748b',
-              fontSize: 13,
+              fontSize: 14,
             }}
           >
             No quiz data yet — take a few quizzes to see your performance radar.

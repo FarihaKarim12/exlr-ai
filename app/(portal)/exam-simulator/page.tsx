@@ -123,7 +123,7 @@ export default function ExamSimulatorPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           Exam Simulator
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
           A timed mock paper that mirrors real exam pressure
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function ExamSimulatorPage() {
             }}
           >
             <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {SUBJECTS.map((s) => (
                   <button
@@ -165,7 +165,7 @@ export default function ExamSimulatorPage() {
             </div>
 
             <div style={{ marginBottom: 24 }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Duration</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Duration</label>
               <div style={{ display: 'flex', gap: 10 }}>
                 {DURATIONS.map((d) => (
                   <button
@@ -208,7 +208,7 @@ export default function ExamSimulatorPage() {
                 transition: 'all 0.25s ease',
               }}
             >
-              {loading ? 'Preparing paper…' : '◧ Start Exam'}
+              {loading ? 'Preparing paper…' : 'Start Exam'}
             </button>
           </div>
         )}

@@ -97,7 +97,7 @@ export default function QuizPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           Quiz
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>Test yourself with AI-generated MCQs</p>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>Test yourself with AI-generated MCQs</p>
       </div>
 
       <div style={{ padding: '0 32px 32px' }}>
@@ -113,7 +113,7 @@ export default function QuizPage() {
         >
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ flex: '1 1 180px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
               <select
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -127,7 +127,7 @@ export default function QuizPage() {
               </select>
             </div>
             <div style={{ flex: '2 1 240px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Topic</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Topic</label>
               <input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
@@ -136,7 +136,7 @@ export default function QuizPage() {
               />
             </div>
             <div style={{ flex: '1 1 140px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Difficulty</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Difficulty</label>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
@@ -172,7 +172,7 @@ export default function QuizPage() {
             onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            {loading ? 'Building quiz…' : '◉ Generate Quiz'}
+            {loading ? 'Building quiz…' : 'Generate Quiz'}
           </button>
         </div>
 
@@ -266,7 +266,7 @@ export default function QuizPage() {
                   </div>
                   {submitted && q.explanation && (
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
-                      ◐ {q.explanation}
+                       {q.explanation}
                     </div>
                   )}
                 </div>

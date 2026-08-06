@@ -65,19 +65,6 @@ export default function AIChatPage() {
 
         {/* Controls */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-          <select value={selectedSubject} onChange={e => setSelectedSubject(e.target.value)} style={{
-            background: 'rgba(15,20,34,0.6)', border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 9, padding: '8px 14px', fontSize: 12,
-            color: selectedSubject ? '#f8fafc' : '#64748b', fontFamily: 'inherit', outline: 'none',
-            backdropFilter: 'blur(8px)', cursor: 'pointer', transition: 'border-color 0.2s',
-          }}
-            onFocus={e => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
-            onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
-          >
-            <option value="">All subjects</option>
-            {subjects.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-
           {messages.length > 0 && (
             <button onClick={() => setMessages([])} style={{
               padding: '8px 14px', fontSize: 12, fontWeight: 500,
@@ -99,19 +86,11 @@ export default function AIChatPage() {
         }}>
           {messages.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 14 }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: '50%',
-                background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.15)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, color: '#22d3ee',
-              }}>◈</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#f8fafc' }}>Ask me anything</div>
-              <div style={{ fontSize: 13, color: '#64748b', textAlign: 'center', maxWidth: 360, lineHeight: 1.7 }}>
-                Ask any question from your AKUEB syllabus. I'll give you a clear, accurate answer.
-              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#f8fafc' }}>Ask any question from your AKUEB syllabus. I'll give you a clear, accurate answer.</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 8 }}>
                 {["What is Newton's second law?", 'Explain photosynthesis', "What is Ohm's law?", 'Difference between mitosis and meiosis'].map(q => (
                   <button key={q} onClick={() => setInput(q)} style={{
-                    fontSize: 12, padding: '8px 14px', borderRadius: 9,
+                    fontSize: 13, padding: '8px 14px', borderRadius: 9,
                     background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
                     color: '#94a3b8', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s ease',
                   }}

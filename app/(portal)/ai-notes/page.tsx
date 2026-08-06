@@ -105,7 +105,7 @@ export default function AINotesPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           AI Notes
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
           Generate concise, exam-ready notes on any AKUEB topic
         </p>
       </div>
@@ -123,7 +123,7 @@ export default function AINotesPage() {
         >
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ flex: '1 1 200px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Subject</label>
               <select
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -146,7 +146,7 @@ export default function AINotesPage() {
               </select>
             </div>
             <div style={{ flex: '2 1 300px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Topic</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Topic</label>
               <input
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
@@ -187,7 +187,7 @@ export default function AINotesPage() {
             onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            {loading ? 'Generating…' : '◈ Generate Notes'}
+            {loading ? 'Generating…' : 'Generate Notes'}
           </button>
         </div>
 
@@ -236,7 +236,7 @@ export default function AINotesPage() {
                   transition: 'all 0.25s ease',
                 }}
               >
-                ◍ Save
+                Save
               </button>
             </div>
             <div style={{ fontSize: 14, lineHeight: 1.7, color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>{notes}</div>
@@ -254,7 +254,7 @@ export default function AINotesPage() {
               border: '1px solid rgba(255,255,255,0.06)',
               borderRadius: 16,
               padding: 24,
-              fontSize: 13,
+              fontSize: 14,
               color: '#64748b',
               textAlign: 'center',
             }}

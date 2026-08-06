@@ -97,7 +97,7 @@ export default function LearningPathPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           Learning Path
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
           A guided sequence of modules built for the AKUEB syllabus
         </p>
       </div>

@@ -5,16 +5,15 @@ import { usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 const navItems = [
-  { icon: '⊞', label: 'Dashboard', href: '/dashboard' },
-  { icon: '◧', label: 'Past Papers', href: '/past-papers' },
-  { icon: '◈', label: 'AI Doubt Solver', href: '/ai-chat' },
-  { icon: '✦', label: 'AI Notes', href: '/ai-notes' },
-  { icon: '◎', label: 'Quiz', href: '/quiz' },
-  { icon: '◉', label: 'Weakness Radar', href: '/radar' },
-  { icon: '◍', label: 'Study Plan', href: '/study-plan' },
-  { icon: '◐', label: 'Learning Path', href: '/learning-path' },
-  { icon: '◷', label: 'Exam Simulator', href: '/exam-simulator' },
-  { icon: '◑', label: 'Feedback', href: '/feedback' },
+  { label: 'Dashboard', href: '/dashboard' },
+  { label: 'Past Papers', href: '/past-papers' },
+  { label: 'AI Doubt Solver', href: '/ai-chat' },
+  { label: 'AI Notes', href: '/ai-notes' },
+  { label: 'Quiz', href: '/quiz' },
+  { label: 'Weakness Radar', href: '/radar' },
+  { label: 'Study Plan', href: '/study-plan' },
+  { label: 'Learning Path', href: '/learning-path' },
+  { label: 'Exam Simulator', href: '/exam-simulator' },
 ]
 
 export default function Sidebar() {
@@ -166,11 +165,10 @@ export default function Sidebar() {
           return (
             <a key={item.href} href={item.href} style={{
               display: 'flex', alignItems: 'center',
-              gap: collapsed ? 0 : 11,
               justifyContent: collapsed ? 'center' : 'flex-start',
               padding: collapsed ? '11px 0' : '10px 13px',
               borderRadius: 10, marginBottom: 3,
-              fontSize: 13, fontWeight: active ? 600 : 400,
+              fontSize: 14, fontWeight: active ? 600 : 400,
               background: active
                 ? 'rgba(99,102,241,0.12)'
                 : 'transparent',
@@ -199,7 +197,6 @@ export default function Sidebar() {
               }}
               title={collapsed ? item.label : ''}
             >
-              <span style={{ fontSize: 15, flexShrink: 0, color: active ? '#818cf8' : 'inherit' }}>{item.icon}</span>
               {!collapsed && <span>{item.label}</span>}
               {!collapsed && active && (
                 <span style={{
@@ -220,7 +217,7 @@ export default function Sidebar() {
             justifyContent: collapsed ? 'center' : 'flex-start',
             padding: collapsed ? '11px 0' : '10px 13px',
             borderRadius: 10, marginTop: 10,
-            fontSize: 13, fontWeight: 500,
+            fontSize: 14, fontWeight: 500,
             background: 'rgba(99,102,241,0.08)',
             color: '#818cf8',
             border: '1px solid rgba(99,102,241,0.15)',
@@ -238,7 +235,6 @@ export default function Sidebar() {
             }}
             title={collapsed ? 'Admin Panel' : ''}
           >
-            <span style={{ fontSize: 15, flexShrink: 0 }}>⚙</span>
             {!collapsed && <span>Admin Panel</span>}
           </a>
         )}
@@ -259,7 +255,7 @@ export default function Sidebar() {
           background: 'rgba(248,113,113,0.04)',
           border: '1px solid rgba(248,113,113,0.1)',
           color: '#64748b', cursor: 'pointer',
-          fontSize: 13, fontWeight: 500, fontFamily: 'inherit',
+          fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
           whiteSpace: 'nowrap', overflow: 'hidden',
           transition: 'all 0.25s ease',
         }}
@@ -275,7 +271,6 @@ export default function Sidebar() {
           }}
           title={collapsed ? 'Log out' : ''}
         >
-          <span style={{ fontSize: 15, flexShrink: 0 }}>↩</span>
           {!collapsed && <span>Log out</span>}
         </button>
       </div>

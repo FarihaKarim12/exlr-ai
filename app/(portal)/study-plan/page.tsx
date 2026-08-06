@@ -103,7 +103,7 @@ export default function StudyPlanPage() {
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
           Study Plan
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
           A personalized day-by-day schedule that fits your exam date
         </p>
       </div>
@@ -121,7 +121,7 @@ export default function StudyPlanPage() {
         >
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ flex: '1 1 160px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Exam date</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Exam date</label>
               <input
                 type="date"
                 value={examDate}
@@ -130,7 +130,7 @@ export default function StudyPlanPage() {
               />
             </div>
             <div style={{ flex: '2 1 260px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>
                 Subjects (comma separated)
               </label>
               <input
@@ -141,7 +141,7 @@ export default function StudyPlanPage() {
               />
             </div>
             <div style={{ flex: '1 1 120px' }}>
-              <label style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Hours / day</label>
+              <label style={{ fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' }}>Hours / day</label>
               <input
                 type="number"
                 min={1}
@@ -174,7 +174,7 @@ export default function StudyPlanPage() {
             onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            {loading ? 'Building plan…' : '◷ Generate Study Plan'}
+            {loading ? 'Building plan…' : 'Generate Study Plan'}
           </button>
         </div>
 

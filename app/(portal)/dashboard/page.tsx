@@ -73,7 +73,7 @@ export default function Dashboard() {
                 {profile?.full_name?.split(' ')[0]}
               </span>{' '}
             </h1>
-            <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+            <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
               Grade {profile?.grade} · {profile?.student_group?.charAt(0).toUpperCase() + profile?.student_group?.slice(1)} group · Keep going!
             </p>
           </div>
@@ -130,11 +130,11 @@ export default function Dashboard() {
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
+              <div style={{ fontSize: 31, fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
                 <span style={{ color: s.color }}>{s.value}</span>
-                <span style={{ fontSize: 12, color: '#64748b', marginLeft: 5, fontWeight: 400 }}>{s.suffix}</span>
+                <span style={{ fontSize: 13, color: '#64748b', marginLeft: 5, fontWeight: 400 }}>{s.suffix}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400 }}>{s.label}</div>
+              <div style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -153,10 +153,10 @@ export default function Dashboard() {
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 16, padding: '22px 24px',
           }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#f8fafc', marginBottom: 6, letterSpacing: '-0.3px' }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#f8fafc', marginBottom: 6, letterSpacing: '-0.3px' }}>
               Overall Progress
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 24, fontWeight: 400 }}>
+            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 24, fontWeight: 400 }}>
               Your performance across all quizzes taken
             </div>
 
@@ -166,13 +166,7 @@ export default function Dashboard() {
                 alignItems: 'center', justifyContent: 'center',
                 height: 200, gap: 14,
               }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: '50%',
-                  background: 'rgba(99,102,241,0.08)',
-                  border: '1px solid rgba(99,102,241,0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 28,
-                }}>◎</div>
+                
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>No quiz data yet</div>
                 <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', lineHeight: 1.6 }}>
                   Take a quiz to see your<br />progress appear here

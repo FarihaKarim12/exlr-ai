@@ -54,7 +54,7 @@ export default function PastPapersPage() {
           AKUEB Past Papers{' '}
           <span style={{ color: '#22d3ee', textShadow: '0 0 30px rgba(34,211,238,0.4)' }}>2012–2025</span>
         </h1>
-        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
+        <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
           Paper 1 + Paper 2 · Official answer keys · View or download instantly
         </p>
       </div>
@@ -68,10 +68,10 @@ export default function PastPapersPage() {
           border: '1px solid rgba(255,255,255,0.06)',
           borderRadius: 16, padding: '22px 24px', marginBottom: 24,
         }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', marginBottom: 16, letterSpacing: '0.02em' }}>Filter papers</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', marginBottom: 16, letterSpacing: '0.02em' }}>Filter papers</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Grade</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Grade</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button style={filterBtn(selectedGrade === '')} onClick={() => setSelectedGrade('')}
                   onMouseEnter={e => { if (selectedGrade !== '') { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; e.currentTarget.style.color = '#94a3b8' } }}
@@ -87,7 +87,7 @@ export default function PastPapersPage() {
             </div>
 
             <div>
-              <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Subject</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Subject</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button style={filterBtn(selectedSubject === '')} onClick={() => setSelectedSubject('')}>All</button>
                 {subjects.map(s => (
@@ -97,7 +97,7 @@ export default function PastPapersPage() {
             </div>
 
             <div>
-              <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Year</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Year</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button style={filterBtn(selectedYear === '')} onClick={() => setSelectedYear('')}>All</button>
                 {years.map(y => (
@@ -128,10 +128,10 @@ export default function PastPapersPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)',
               }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc' }}>{viewing.title}</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc' }}>{viewing.title}</div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <a href={viewing.url} download target="_blank" rel="noopener noreferrer" style={{
-                    fontSize: 12, fontWeight: 600, padding: '8px 16px', borderRadius: 9,
+                    fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 9,
                     background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
                     color: '#fff', textDecoration: 'none',
                     boxShadow: '0 4px 15px rgba(99,102,241,0.3)',
@@ -147,7 +147,7 @@ export default function PastPapersPage() {
                     }}
                   >Download</a>
                   <button onClick={() => setViewing(null)} style={{
-                    fontSize: 12, padding: '8px 16px', borderRadius: 9,
+                    fontSize: 13, padding: '8px 16px', borderRadius: 9,
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,255,255,0.1)',
                     color: '#64748b', cursor: 'pointer',
@@ -187,9 +187,8 @@ export default function PastPapersPage() {
             backdropFilter: 'blur(20px)',
             border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16,
           }}>
-            <div style={{ fontSize: 40, marginBottom: 14, opacity: 0.5 }}>◧</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#94a3b8', marginBottom: 6 }}>No papers found</div>
-            <div style={{ fontSize: 13, color: '#64748b' }}>Try adjusting your filters</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#94a3b8', marginBottom: 6 }}>No papers found</div>
+            <div style={{ fontSize: 14, color: '#64748b' }}>Try adjusting your filters</div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -212,10 +211,10 @@ export default function PastPapersPage() {
                 }}
               >
                 <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc', marginBottom: 4, letterSpacing: '-0.2px' }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc', marginBottom: 4, letterSpacing: '-0.2px' }}>
                     {p.subjects?.name} — Grade {p.grade}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400 }}>
+                  <div style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>
                     {p.year} · {p.paper === 'paper1' ? 'Paper 1 (MCQ)' : 'Paper 2 (CRQ/ERQ)'}
                   </div>
                 </div>
@@ -224,7 +223,7 @@ export default function PastPapersPage() {
                   {p.pdf_url && (
                     <button onClick={() => setViewing({ title: `${p.subjects?.name} ${p.year} ${p.paper === 'paper1' ? 'Paper 1' : 'Paper 2'}`, url: p.pdf_url })}
                       style={{
-                        fontSize: 12, fontWeight: 500, padding: '7px 14px', borderRadius: 8,
+                        fontSize: 13, fontWeight: 500, padding: '7px 14px', borderRadius: 8,
                         background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)',
                         color: '#818cf8', cursor: 'pointer', transition: 'all 0.2s ease',
                       }}
@@ -241,7 +240,7 @@ export default function PastPapersPage() {
                   {p.answer_key_url && (
                     <button onClick={() => setViewing({ title: `${p.subjects?.name} ${p.year} Answer Key`, url: p.answer_key_url })}
                       style={{
-                        fontSize: 12, fontWeight: 500, padding: '7px 14px', borderRadius: 8,
+                        fontSize: 13, fontWeight: 500, padding: '7px 14px', borderRadius: 8,
                         background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.15)',
                         color: '#22d3ee', cursor: 'pointer', transition: 'all 0.2s ease',
                       }}
@@ -258,7 +257,7 @@ export default function PastPapersPage() {
                   {p.pdf_url && (
                     <a href={p.pdf_url} download target="_blank" rel="noopener noreferrer"
                       style={{
-                        fontSize: 12, fontWeight: 500, padding: '7px 14px', borderRadius: 8,
+                        fontSize: 13, fontWeight: 500, padding: '7px 14px', borderRadius: 8,
                         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
                         color: '#64748b', textDecoration: 'none', transition: 'all 0.2s ease',
                       }}
