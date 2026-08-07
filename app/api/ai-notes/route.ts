@@ -15,21 +15,15 @@ Topic: ${topic}
 ${subject ? `Subject: ${subject}` : ''}
 ${grade ? `Grade: ${grade}` : ''}
 
-Format the notes as follows:
-1. Brief introduction (2-3 sentences)
-2. Key concepts (list the main points)
-3. Important definitions
-4. Key formulas or facts (if applicable)
-5. Common exam questions on this topic
-6. Quick revision summary
+Format the notes as plain text with this structure:
+1. Start with a main title on its own line.
+2. Use numbered headings like 1. Introduction, 2. Key Concepts, 3. Important Definitions, 4. Formulas, 5. Exam Tips, 6. Summary.
+3. Under each heading, use bullet points and short numbered subpoints.
+4. Make only the heading text bold.
+5. Do not use hashtags or markdown headings like # or ##.
+6. Keep the content concise, exam-focused, and relevant to the AKUEB syllabus.
 
-Rules:
-- Keep it relevant to the AKUEB syllabus
-- Use simple, clear language for SSC/HSSC students
-- Do not use markdown formatting like ** or ##
-- Use plain numbered lists and simple dashes for bullet points
-- Be concise but comprehensive
-- Use clear: any headings in bold and a larger font size than the remaining notes. Keep the headings short and relevant to the topic.`
+Do not include any extra commentary outside the notes.`
 
     const response = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',

@@ -13,11 +13,13 @@ export default function Dashboard() {
     const getProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/auth/login'; return }
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      setProfile(data)
-      setIsAdmin(data?.is_admin || false)
-      const { data: masteryData } = await supabase.from('topic_mastery').select('*').eq('student_id', user.id)
-      setMastery(masteryData || [])
+      const profileResult = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      const profileData = (profileResult as { data?: any }).data || null
+      setProfile(profileData)
+      setIsAdmin(profileData?.is_admin || false)
+      const masteryResult = await supabase.from('topic_mastery').select('*').eq('student_id', user.id)
+      const masteryData = (masteryResult as { data?: any[] }).data || []
+      setMastery(masteryData)
       setLoading(false)
     }
     getProfile()

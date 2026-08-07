@@ -21,10 +21,19 @@ export default function AINotesPage() {
   const [error, setError] = useState('');
   const [saved, setSaved] = useState<SavedNote[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('All');
+  const [actionMessage, setActionMessage] = useState('');
 
   useEffect(() => {
     loadSaved();
   }, []);
+
+  useEffect(() => {
+    if (!actionMessage) return;
+    const timeout = window.setTimeout(() => setActionMessage(''), 2200);
+    return () => window.clearTimeout(timeout);
+  }, [actionMessage]);
 
   async function loadSaved() {
     setLoadingSaved(true);
@@ -33,13 +42,31 @@ export default function AINotesPage() {
       setLoadingSaved(false);
       return;
     }
-    const { data } = await supabase
+    const notesResult = await supabase
       .from('ai_notes')
       .select('*')
       .eq('user_id', userData.user.id)
       .order('created_at', { ascending: false })
       .limit(10);
-    setSaved((data as SavedNote[]) || []);
+    const savedNotes = Array.isArray((notesResult as { data?: SavedNote[] }).data)
+      ? ((notesResult as { data?: SavedNote[] }).data as SavedNote[])
+      : [];
+
+    if (savedNotes.length === 0 && typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem('exlr-ai-notes');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as SavedNote[];
+          if (parsed.length > 0) {
+            setSaved(parsed);
+            setLoadingSaved(false);
+            return;
+          }
+        } catch {}
+      }
+    }
+
+    setSaved(savedNotes);
     setLoadingSaved(false);
   }
 
@@ -67,18 +94,84 @@ export default function AINotesPage() {
     }
   }
 
+  function syncSavedNotes(next: SavedNote[]) {
+    setSaved(next);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('exlr-ai-notes', JSON.stringify(next));
+    }
+  }
+
   async function saveNote() {
     if (!notes) return;
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData?.user) return;
-    await supabase.from('ai_notes').insert({
+    if (!userData?.user) {
+      const fallbackNotes = [{
+        id: `${Date.now()}`,
+        subject,
+        topic,
+        content: notes,
+        created_at: new Date().toISOString(),
+      }];
+      const existing = typeof window !== 'undefined' ? window.localStorage.getItem('exlr-ai-notes') : null;
+      const parsed = existing ? JSON.parse(existing) : [];
+      const next = [...parsed, ...fallbackNotes];
+      syncSavedNotes(next);
+      setActionMessage('Note saved locally.');
+      return;
+    }
+
+    const insertResult = await supabase.from('ai_notes').insert({
       user_id: userData.user.id,
       subject,
       topic,
       content: notes,
     });
+
+    if (insertResult.error) {
+      const fallbackNotes = [{
+        id: `${Date.now()}`,
+        subject,
+        topic,
+        content: notes,
+        created_at: new Date().toISOString(),
+      }];
+      const existing = typeof window !== 'undefined' ? window.localStorage.getItem('exlr-ai-notes') : null;
+      const parsed = existing ? JSON.parse(existing) : [];
+      const next = [...parsed, ...fallbackNotes];
+      syncSavedNotes(next);
+      setActionMessage('Note saved locally.');
+      return;
+    }
+
     loadSaved();
+    setActionMessage('Note saved.');
   }
+
+  async function deleteNote(id: string) {
+    const next = saved.filter((note) => note.id !== id);
+    syncSavedNotes(next);
+    setActionMessage('Note deleted.');
+
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) return;
+
+    const notesTable = supabase.from('ai_notes') as {
+      delete?: () => { eq?: (column: string, value: string) => Promise<unknown> };
+    };
+    if (typeof notesTable.delete === 'function') {
+      const deleteQuery = notesTable.delete();
+      if (deleteQuery?.eq) {
+        await deleteQuery.eq('id', id);
+      }
+    }
+  }
+
+  const filteredNotes = saved.filter((n) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSubject = subjectFilter === 'All' || n.subject === subjectFilter;
+    const matchesQuery = !query || [n.subject, n.topic, n.content].join(' ').toLowerCase().includes(query);
+    return matchesSubject && matchesQuery;
+  });
 
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -111,6 +204,22 @@ export default function AINotesPage() {
       </div>
 
       <div style={{ padding: '0 32px 32px' }}>
+        {actionMessage && (
+          <div
+            style={{
+              marginBottom: 16,
+              padding: '10px 12px',
+              borderRadius: 10,
+              border: '1px solid rgba(16,185,129,0.25)',
+              background: 'rgba(16,185,129,0.12)',
+              color: '#86efac',
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            {actionMessage}
+          </div>
+        )}
         <div
           style={{
             background: 'rgba(15,20,34,0.5)',
@@ -184,8 +293,16 @@ export default function AINotesPage() {
               boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
               transition: 'all 0.25s ease',
             }}
-            onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(99,102,241,0.38)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.3)';
+            }}
           >
             {loading ? 'Generating…' : 'Generate Notes'}
           </button>
@@ -239,11 +356,70 @@ export default function AINotesPage() {
                 Save
               </button>
             </div>
-            <div style={{ fontSize: 14, lineHeight: 1.7, color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>{notes}</div>
+            <div
+              style={{ fontSize: 14, lineHeight: 1.7, color: '#cbd5e1', whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{
+                __html: notes
+                  .replace(/\n/g, '<br />')
+                  .replace(/^(\d+\.\s+.+)$/gm, '<div style="margin: 10px 0 4px; font-weight: 700; color: #f8fafc;">$1</div>')
+                  .replace(/^(\s*[-•]\s+.+)$/gm, '<div style="margin: 4px 0 4px 16px;">• $1</div>')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              }}
+            />
           </div>
         )}
 
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8', marginBottom: 12 }}>Saved Notes</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8', margin: 0 }}>Saved Notes</h3>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <select
+              value={subjectFilter}
+              onChange={(e) => setSubjectFilter(e.target.value)}
+              style={{
+                minWidth: 150,
+                padding: '10px 12px',
+                background: 'rgba(10,14,26,0.6)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 10,
+                color: '#e2e8f0',
+                fontSize: 13,
+                outline: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="All" style={{ background: '#0a0e1a' }}>All subjects</option>
+              {SUBJECTS.map((subjectOption) => (
+                <option key={subjectOption} value={subjectOption} style={{ background: '#0a0e1a' }}>
+                  {subjectOption}
+                </option>
+              ))}
+            </select>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search notes"
+              style={{
+                width: 220,
+                padding: '10px 12px',
+                background: 'rgba(10,14,26,0.6)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 10,
+                color: '#e2e8f0',
+                fontSize: 13,
+                outline: 'none',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.45)';
+                e.currentTarget.style.boxShadow = '0 0 0 1px rgba(99,102,241,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+        </div>
         {loadingSaved ? (
           <div style={{ fontSize: 13, color: '#64748b' }}>Loading…</div>
         ) : saved.length === 0 ? (
@@ -261,9 +437,24 @@ export default function AINotesPage() {
           >
             No saved notes yet — generate one above and save it.
           </div>
+        ) : filteredNotes.length === 0 ? (
+          <div
+            style={{
+              background: 'rgba(15,20,34,0.5)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 16,
+              padding: 24,
+              fontSize: 14,
+              color: '#64748b',
+              textAlign: 'center',
+            }}
+          >
+            No notes match your search.
+          </div>
         ) : (
           <div style={{ display: 'grid', gap: 12 }}>
-            {saved.map((n) => (
+            {filteredNotes.map((n) => (
               <div
                 key={n.id}
                 style={{
@@ -279,12 +470,44 @@ export default function AINotesPage() {
                   setSubject(n.subject);
                   setTopic(n.topic);
                   setNotes(n.content);
+                  setActionMessage('Note loaded into editor.');
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
                 onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
               >
-                <div style={{ fontSize: 11, color: '#6366f1', fontWeight: 700, marginBottom: 4 }}>{n.subject}</div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>{n.topic}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#6366f1', fontWeight: 700, marginBottom: 4 }}>{n.subject}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{n.topic}</div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteNote(n.id);
+                    }}
+                    style={{
+                      border: 'none',
+                      background: 'rgba(248,113,113,0.12)',
+                      color: '#fda4af',
+                      borderRadius: 8,
+                      padding: '6px 10px',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.background = 'rgba(248,113,113,0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(248,113,113,0.12)';
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

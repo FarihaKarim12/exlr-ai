@@ -168,7 +168,7 @@ export default function Sidebar() {
               justifyContent: collapsed ? 'center' : 'flex-start',
               padding: collapsed ? '11px 0' : '10px 13px',
               borderRadius: 10, marginBottom: 3,
-              fontSize: 14, fontWeight: active ? 600 : 400,
+              fontSize: 15, fontWeight: active ? 600 : 400,
               background: active
                 ? 'rgba(99,102,241,0.12)'
                 : 'transparent',

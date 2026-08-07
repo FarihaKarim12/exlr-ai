@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { saveQuizResult } from '@/lib/persistence';
 
 const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science', 'Urdu', 'Pakistan Studies'];
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -57,17 +57,14 @@ export default function QuizPage() {
   async function submitQuiz() {
     setSubmitted(true);
     const score = questions.reduce((acc, q, i) => (answers[i] === q.answer ? acc + 1 : acc), 0);
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData?.user) {
-      await supabase.from('quiz_results').insert({
-        user_id: userData.user.id,
-        subject,
-        topic,
-        difficulty,
-        score,
-        total: questions.length,
-      });
-    }
+    saveQuizResult({
+      subject,
+      topic,
+      difficulty,
+      score,
+      total: questions.length,
+      created_at: new Date().toISOString(),
+    });
   }
 
   const score = questions.reduce((acc, q, i) => (answers[i] === q.answer ? acc + 1 : acc), 0);

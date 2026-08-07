@@ -68,10 +68,10 @@ export default function PastPapersPage() {
           border: '1px solid rgba(255,255,255,0.06)',
           borderRadius: 16, padding: '22px 24px', marginBottom: 24,
         }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', marginBottom: 16, letterSpacing: '0.02em' }}>Filter papers</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#94a3b8', marginBottom: 16, letterSpacing: '0.02em' }}>Filter papers</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Grade</div>
+              <div style={{ fontSize: 14, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Grade</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button style={filterBtn(selectedGrade === '')} onClick={() => setSelectedGrade('')}
                   onMouseEnter={e => { if (selectedGrade !== '') { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; e.currentTarget.style.color = '#94a3b8' } }}
@@ -87,7 +87,7 @@ export default function PastPapersPage() {
             </div>
 
             <div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Subject</div>
+              <div style={{ fontSize: 14, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Subject</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button style={filterBtn(selectedSubject === '')} onClick={() => setSelectedSubject('')}>All</button>
                 {subjects.map(s => (
@@ -97,7 +97,7 @@ export default function PastPapersPage() {
             </div>
 
             <div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Year</div>
+              <div style={{ fontSize: 14, color: '#64748b', marginBottom: 10, fontWeight: 500 }}>Year</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <button style={filterBtn(selectedYear === '')} onClick={() => setSelectedYear('')}>All</button>
                 {years.map(y => (

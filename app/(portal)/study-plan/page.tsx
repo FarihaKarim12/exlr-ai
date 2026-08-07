@@ -75,6 +75,34 @@ export default function StudyPlanPage() {
     setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
+  function updateDayField(dayIndex: number, field: 'day' | 'focus', value: string) {
+    setPlan((prev) => prev.map((day, index) => (index === dayIndex ? { ...day, [field]: value } : day)));
+  }
+
+  function updateTask(dayIndex: number, taskIndex: number, value: string) {
+    setPlan((prev) => prev.map((day, index) => {
+      if (index !== dayIndex) return day;
+      return {
+        ...day,
+        tasks: day.tasks.map((task, taskPos) => (taskPos === taskIndex ? value : task)),
+      };
+    }));
+  }
+
+  function addTask(dayIndex: number) {
+    setPlan((prev) => prev.map((day, index) => {
+      if (index !== dayIndex) return day;
+      return { ...day, tasks: [...day.tasks, 'New task'] };
+    }));
+  }
+
+  function removeTask(dayIndex: number, taskIndex: number) {
+    setPlan((prev) => prev.map((day, index) => {
+      if (index !== dayIndex) return day;
+      return { ...day, tasks: day.tasks.filter((_, pos) => pos !== taskIndex) };
+    }));
+  }
+
   const totalTasks = plan.reduce((acc, d) => acc + d.tasks.length, 0);
   const doneTasks = Object.values(checked).filter(Boolean).length;
 
@@ -226,32 +254,67 @@ export default function StudyPlanPage() {
                     padding: 20,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{day.day}</div>
-                    <div style={{ fontSize: 12, color: '#6366f1', fontWeight: 600 }}>{day.focus}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+                    <input
+                      value={day.day}
+                      onChange={(e) => updateDayField(di, 'day', e.target.value)}
+                      style={{ ...inputStyle, flex: 1, fontSize: 14, fontWeight: 700 }}
+                    />
+                    <input
+                      value={day.focus}
+                      onChange={(e) => updateDayField(di, 'focus', e.target.value)}
+                      style={{ ...inputStyle, width: 180, fontSize: 12, color: '#6366f1' }}
+                    />
                   </div>
                   <div style={{ display: 'grid', gap: 8 }}>
                     {day.tasks.map((task, ti) => {
                       const key = `${di}-${ti}`;
                       return (
-                        <label
-                          key={key}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 10,
-                            fontSize: 13,
-                            color: checked[key] ? '#64748b' : '#cbd5e1',
-                            textDecoration: checked[key] ? 'line-through' : 'none',
-                            cursor: 'pointer',
-                          }}
-                        >
+                        <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <input type="checkbox" checked={!!checked[key]} onChange={() => toggleTask(key)} />
-                          {task}
-                        </label>
+                          <input
+                            value={task}
+                            onChange={(e) => updateTask(di, ti, e.target.value)}
+                            style={{
+                              ...inputStyle,
+                              flex: 1,
+                              fontSize: 13,
+                              color: checked[key] ? '#64748b' : '#cbd5e1',
+                              textDecoration: checked[key] ? 'line-through' : 'none',
+                            }}
+                          />
+                          <button
+                            onClick={() => removeTask(di, ti)}
+                            style={{
+                              border: 'none',
+                              background: 'transparent',
+                              color: '#f87171',
+                              cursor: 'pointer',
+                              fontSize: 12,
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
                       );
                     })}
                   </div>
+                  <button
+                    onClick={() => addTask(di)}
+                    style={{
+                      marginTop: 10,
+                      padding: '8px 12px',
+                      borderRadius: 8,
+                      border: '1px solid rgba(99,102,241,0.25)',
+                      background: 'rgba(99,102,241,0.1)',
+                      color: '#a5b4fc',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    + Add task
+                  </button>
                 </div>
               ))}
             </div>

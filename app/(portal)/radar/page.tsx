@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getStoredQuizResults } from '@/lib/persistence';
 
 interface SubjectScore {
   subject: string;
@@ -85,18 +85,10 @@ export default function RadarPage() {
 
   async function loadData() {
     setLoading(true);
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData?.user) {
-      setLoading(false);
-      return;
-    }
-    const { data } = await supabase
-      .from('quiz_results')
-      .select('subject, score, total')
-      .eq('user_id', userData.user.id);
+    const storedResults = getStoredQuizResults();
 
     const bySubject: Record<string, { total: number; count: number }> = {};
-    (data || []).forEach((row: any) => {
+    storedResults.forEach((row) => {
       const pct = row.total > 0 ? (row.score / row.total) * 100 : 0;
       if (!bySubject[row.subject]) bySubject[row.subject] = { total: 0, count: 0 };
       bySubject[row.subject].total += pct;

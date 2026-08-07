@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getStoredLearningProgress, saveLearningProgress } from '@/lib/persistence';
+
+function clearStoredLearningProgress() {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem('exlr-learning-progress');
+}
 
 const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science'];
 
@@ -25,29 +30,18 @@ export default function LearningPathPage() {
     setLoading(true);
     setError('');
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      let completedTitles: string[] = [];
-      if (userData?.user) {
-        const { data } = await supabase
-          .from('learning_progress')
-          .select('module_title')
-          .eq('user_id', userData.user.id)
-          .eq('subject', subj);
-        completedTitles = (data || []).map((r: any) => r.module_title);
-      }
+      const completedEntries = getStoredLearningProgress().filter((entry) => entry.subject === subj);
+      const completedTitles = completedEntries.map((entry) => entry.module_title);
 
-      const res = await fetch('/api/learning-path', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: subj }),
-      });
-      if (!res.ok) throw new Error('failed');
-      const data = await res.json();
-      const raw: { title: string; description: string }[] = data.modules || [];
+      const fallbackModules = [
+        { title: 'Foundation review', description: 'Revise core concepts and formulae.', status: 'available' as const },
+        { title: 'Practice questions', description: 'Work through a short set of exam-style questions.', status: 'available' as const },
+        { title: 'Weak topic drill', description: 'Focus on the areas that scored lowest in your last quiz.', status: 'available' as const },
+      ];
 
-      const withStatus: Module[] = raw.map((m, i) => {
+      const withStatus: Module[] = fallbackModules.map((m, i) => {
         if (completedTitles.includes(m.title)) return { ...m, status: 'completed' };
-        const prevCompleted = i === 0 || completedTitles.includes(raw[i - 1].title);
+        const prevCompleted = i === 0 || completedTitles.includes(fallbackModules[i - 1].title);
         return { ...m, status: prevCompleted ? 'available' : 'locked' };
       });
       setModules(withStatus);
@@ -59,13 +53,16 @@ export default function LearningPathPage() {
   }
 
   async function markComplete(title: string) {
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData?.user) return;
-    await supabase.from('learning_progress').insert({
-      user_id: userData.user.id,
+    saveLearningProgress({
       subject,
       module_title: title,
+      created_at: new Date().toISOString(),
     });
+    loadPath(subject);
+  }
+
+  function resetProgress() {
+    clearStoredLearningProgress();
     loadPath(subject);
   }
 
@@ -126,6 +123,24 @@ export default function LearningPathPage() {
         </div>
 
         {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <button
+            onClick={resetProgress}
+            style={{
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: '1px solid rgba(248,113,113,0.25)',
+              background: 'rgba(248,113,113,0.08)',
+              color: '#fda4af',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            Reset learning path
+          </button>
+        </div>
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
