@@ -143,10 +143,7 @@ export default function AdminPage() {
     saveFallbackFeedback(nextFeedback);
 
     try {
-      const updateResult = supabase.from('feedback').update({ status }) as { eq?: (column: string, value: string) => Promise<unknown> };
-      if (typeof updateResult?.eq === 'function') {
-        await updateResult.eq('id', id);
-      }
+      await supabase.from('feedback').update({ status }).eq('id', id);
     } catch {
       // Fall back silently; the local UI already updated.
     }
