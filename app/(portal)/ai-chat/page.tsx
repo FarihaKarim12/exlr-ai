@@ -317,7 +317,7 @@ export default function AIChatPage() {
               padding: '7px 10px', borderRadius: 9, border: '1px solid rgba(99,102,241,0.25)',
               background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', fontSize: 12, fontWeight: 600, cursor: 'pointer'
             }}>
-              + New
+              + New Chat
             </button>
           </div>
           <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
