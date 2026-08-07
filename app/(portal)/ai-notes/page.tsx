@@ -155,15 +155,7 @@ export default function AINotesPage() {
     const { data: userData } = await supabase.auth.getUser();
     if (!userData?.user) return;
 
-    const notesTable = supabase.from('ai_notes') as {
-      delete?: () => { eq?: (column: string, value: string) => Promise<unknown> };
-    };
-    if (typeof notesTable.delete === 'function') {
-      const deleteQuery = notesTable.delete();
-      if (deleteQuery?.eq) {
-        await deleteQuery.eq('id', id);
-      }
-    }
+    await supabase.from('ai_notes').delete().eq('id', id);
   }
 
   const filteredNotes = saved.filter((n) => {
