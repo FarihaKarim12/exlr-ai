@@ -28,7 +28,8 @@ Rules:
 - Use simple, clear language for SSC/HSSC students
 - Do not use markdown formatting like ** or ##
 - Use plain numbered lists and simple dashes for bullet points
-- Be concise but comprehensive`
+- Be concise but comprehensive
+- Use clear: any headings in bold and a larger font size than the remaining notes. Keep the headings short and relevant to the topic.`
 
     const response = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
