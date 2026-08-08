@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null)
   const [mastery, setMastery] = useState<any[]>([])
+  const [quizResults, setQuizResults] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -17,9 +18,19 @@ export default function Dashboard() {
       const profileData = (profileResult as { data?: any }).data || null
       setProfile(profileData)
       setIsAdmin(profileData?.is_admin || false)
+
       const masteryResult = await supabase.from('topic_mastery').select('*').eq('student_id', user.id)
       const masteryData = (masteryResult as { data?: any[] }).data || []
       setMastery(masteryData)
+
+      const quizResult = await supabase
+        .from('quiz_sessions')
+        .select('*')
+        .eq('student_id', user.id)
+        .order('completed_at', { ascending: false })
+      const quizData = (quizResult as { data?: any[] }).data || []
+      setQuizResults(quizData)
+
       setLoading(false)
     }
     getProfile()
@@ -54,6 +65,40 @@ export default function Dashboard() {
   const amberCount = mastery.filter(m => m.status === 'amber').length
   const redCount = mastery.filter(m => m.status === 'red').length
 
+  // Quiz accuracy — average score % across all quizzes taken
+  
+  const quizAccuracy = quizResults.length
+    ? Math.round(quizResults.reduce((sum, q) => sum + (q.score_percent || 0), 0) / quizResults.length)
+    : 0
+
+  const latestQuiz = quizResults[0]
+  const previousQuiz = quizResults[1]
+  const latestPct = latestQuiz?.score_percent ?? null
+  const previousPct = previousQuiz?.score_percent ?? null
+  const sloMastery = mastery.length ? Math.round((greenCount / mastery.length) * 100) : 0
+
+  let recentTrend: 'up' | 'down' | 'flat' | 'none' = 'none'
+  if (latestPct !== null && previousPct !== null) {
+    recentTrend = latestPct > previousPct ? 'up' : latestPct < previousPct ? 'down' : 'flat'
+  } else if (latestPct !== null) {
+    recentTrend = 'flat'
+  }
+
+  const trendColor = recentTrend === 'up' ? '#4ade80' : recentTrend === 'down' ? '#f87171' : '#22d3ee'
+  const trendArrow = recentTrend === 'up' ? '▲' : recentTrend === 'down' ? '▼' : ''
+  
+  const stats = [
+    { label: 'Study Streak', value: `${profile?.streak_count || 0}`, suffix: 'days', color: '#f59e0b' },
+    { label: 'Quiz Accuracy', value: `${quizAccuracy}`, suffix: '%', color: '#4ade80' },
+    { label: 'SLO Mastery', value: `${sloMastery}`, suffix: '%', color: '#6366f1' },
+    {
+      label: 'Recent Performance',
+      value: latestPct !== null ? `${latestPct}` : '—',
+      suffix: latestPct !== null ? `% ${trendArrow}` : '',
+      color: latestPct !== null ? trendColor : '#64748b',
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: 'transparent' }}>
 
@@ -75,7 +120,7 @@ export default function Dashboard() {
                 {profile?.full_name?.split(' ')[0]}
               </span>{' '}
             </h1>
-            <p style={{ fontSize: 14, color: '#64748b', fontWeight: 400 }}>
+            <p style={{ fontSize: 15, color: '#64748b', fontWeight: 500 }}>
               Grade {profile?.grade} · {profile?.student_group?.charAt(0).toUpperCase() + profile?.student_group?.slice(1)} group · Keep going!
             </p>
           </div>
@@ -107,12 +152,7 @@ export default function Dashboard() {
           display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
           gap: 12, marginBottom: 28,
         }}>
-          {[
-            { label: 'Study streak', value: `${profile?.streak_count || 0}`, suffix: 'days', color: '#f59e0b' },
-            { label: 'Topics tracked', value: `${mastery.length}`, suffix: 'total', color: '#4ade80' },
-            { label: 'Questions answered', value: `${mastery.reduce((sum, m) => sum + (m.attempts || 0), 0)}`, suffix: 'total', color: '#6366f1' },
-            { label: 'Past papers', value: '0', suffix: 'attempted', color: '#22d3ee' },
-          ].map(s => (
+          {stats.map(s => (
             <div key={s.label} style={{
               background: 'rgba(15,20,34,0.5)',
               backdropFilter: 'blur(20px)',
@@ -134,9 +174,9 @@ export default function Dashboard() {
             >
               <div style={{ fontSize: 31, fontWeight: 700, letterSpacing: '-1px', marginBottom: 6 }}>
                 <span style={{ color: s.color }}>{s.value}</span>
-                <span style={{ fontSize: 13, color: '#64748b', marginLeft: 5, fontWeight: 400 }}>{s.suffix}</span>
+                <span style={{ fontSize: 14, color: '#64748b', marginLeft: 5, fontWeight: 500 }}>{s.suffix}</span>
               </div>
-              <div style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>{s.label}</div>
+              <div style={{ fontSize: 15, color: '#64748b', fontWeight: 600 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -155,10 +195,10 @@ export default function Dashboard() {
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 16, padding: '22px 24px',
           }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#f8fafc', marginBottom: 6, letterSpacing: '-0.3px' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#f8fafc', marginBottom: 6, letterSpacing: '-0.3px' }}>
               Overall Progress
             </div>
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 24, fontWeight: 400 }}>
+            <div style={{ fontSize: 15, color: '#64748b', marginBottom: 24, fontWeight: 500 }}>
               Your performance across all quizzes taken
             </div>
 
@@ -168,7 +208,7 @@ export default function Dashboard() {
                 alignItems: 'center', justifyContent: 'center',
                 height: 200, gap: 14,
               }}>
-                
+
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>No quiz data yet</div>
                 <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', lineHeight: 1.6 }}>
                   Take a quiz to see your<br />progress appear here
@@ -237,8 +277,8 @@ export default function Dashboard() {
                           boxShadow: `0 0 6px ${s.color}`,
                           flexShrink: 0,
                         }} />
-                        <span style={{ fontSize: 12, color: '#94a3b8', flex: 1 }}>{s.label}</span>
-                        <span style={{ fontSize: 13, color: '#f8fafc', fontWeight: 600 }}>{s.count}</span>
+                        <span style={{ fontSize: 14, color: '#94a3b8', flex: 1 }}>{s.label}</span>
+                        <span style={{ fontSize: 15, color: '#f8fafc', fontWeight: 600 }}>{s.count}</span>
                       </div>
                     ))}
                   </div>
@@ -249,7 +289,7 @@ export default function Dashboard() {
                   borderRadius: 10,
                   background: 'rgba(99,102,241,0.08)',
                   border: '1px solid rgba(99,102,241,0.15)',
-                  color: '#818cf8', fontSize: 13, fontWeight: 600,
+                  color: '#818cf8', fontSize: 15, fontWeight: 600,
                   textDecoration: 'none',
                   transition: 'all 0.25s ease',
                 }}

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 import { saveQuizResult } from '@/lib/persistence';
 
 const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science', 'Urdu', 'Pakistan Studies'];
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
-
 interface Question {
   question: string;
   options: string[];
@@ -22,6 +22,7 @@ export default function QuizPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [startedAt, setStartedAt] = useState<string | null>(null);
 
   async function generateQuiz() {
     if (!topic.trim()) {
@@ -42,6 +43,7 @@ export default function QuizPage() {
       if (!res.ok) throw new Error('Generation failed');
       const data = await res.json();
       setQuestions(data.questions || []);
+      setStartedAt(new Date().toISOString());
     } catch (e) {
       setError('Could not generate the quiz right now. Try again in a moment.');
     } finally {
@@ -57,6 +59,7 @@ export default function QuizPage() {
   async function submitQuiz() {
     setSubmitted(true);
     const score = questions.reduce((acc, q, i) => (answers[i] === q.answer ? acc + 1 : acc), 0);
+
     saveQuizResult({
       subject,
       topic,
@@ -65,6 +68,20 @@ export default function QuizPage() {
       total: questions.length,
       created_at: new Date().toISOString(),
     });
+
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData?.user) {
+      const { error } = await supabase.from('quiz_sessions').insert({
+        student_id: userData.user.id,
+        chapter_id: null,
+        total_questions: questions.length,
+        correct_count: score,
+        score_percent: Math.round((score / questions.length) * 100),
+        started_at: startedAt || new Date().toISOString(),
+        completed_at: new Date().toISOString(),
+      });
+      if (error) console.error('Quiz session save failed:', error);
+    }
   }
 
   const score = questions.reduce((acc, q, i) => (answers[i] === q.answer ? acc + 1 : acc), 0);
@@ -190,7 +207,7 @@ export default function QuizPage() {
         )}
 
         {questions.length > 0 && (
-          <>
+          <div style={{ maxWidth: 760, margin: '0 auto' }}>
             {submitted && (
               <div
                 style={{
@@ -262,7 +279,7 @@ export default function QuizPage() {
                     })}
                   </div>
                   {submitted && q.explanation && (
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 14, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
                        {q.explanation}
                     </div>
                   )}
@@ -289,10 +306,10 @@ export default function QuizPage() {
                   transition: 'all 0.25s ease',
                 }}
               >
-                ✦ Submit Answers
+                Submit Answers
               </button>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

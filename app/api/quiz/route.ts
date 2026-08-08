@@ -59,28 +59,40 @@ export async function POST(req: NextRequest) {
     }
 
     const grade = body.grade || '10'
-    const prompt = `Generate exactly ${count} AKUEB-style MCQs for:
-Subject: ${subject}
-Grade: ${grade}
-${topic ? `Topic: ${topic}` : 'Topic: Any topic from the syllabus'}
-Difficulty: ${difficulty}
+    const prompt = `Generate exactly 10 AKUEB-style MCQs for:
+    Subject: ${subject}
+    Grade: ${grade}
+    ${topic ? `Topic: ${topic}` : 'Topic: Any topic from the syllabus'}
 
-Return ONLY a valid JSON array with exactly this structure, no other text:
-[
-  {
-    "question": "question text here",
-    "options": ["option a", "option b", "option c", "option d"],
-    "correct": 2,
-    "explanation": "brief explanation why this is correct"
-  }
-]
+    For EACH question, work through it in this exact order:
+    1. Solve the question fully and determine the final correct value/answer.
+    2. Write four plausible options (a, b, c, d), making sure ONE of them is your exact solved answer from step 1.
+    3. Set "correct" to the letter of the option that matches your solved answer — re-check this against your own working before finalizing.
+    4. Write the explanation showing your work, and confirm the explanation's final result is identical to the option marked as "correct".
 
-Rules:
-- Questions must be relevant to AKUEB syllabus for grade ${grade}
-- All 4 options must be plausible
-- Correct answer must be accurate
-- Explanation must be clear and educational
-- Return ONLY the JSON array, no markdown, no extra text`
+    This consistency check is mandatory: the letter in "correct" MUST correspond to the option whose value matches your explanation's conclusion. Mismatches are not acceptable.
+
+    Return ONLY a valid JSON array with exactly this structure, no other text:
+    [
+      {
+        "question": "question text here",
+        "options": {
+          "a": "option a text",
+          "b": "option b text", 
+          "c": "option c text",
+          "d": "option d text"
+        },
+        "correct": "a",
+        "explanation": "brief step-by-step explanation showing the work that leads to the correct option"
+      }
+    ]
+
+    Rules:
+    - Questions must be relevant to AKUEB syllabus for grade ${grade}
+    - All 4 options must be plausible
+    - Double-check arithmetic and exponent/algebra rules before finalizing "correct"
+    - Explanation must be clear, educational, and end in the same value as the correct option
+    - Return ONLY the JSON array, no markdown, no extra text`
 
     const response = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
